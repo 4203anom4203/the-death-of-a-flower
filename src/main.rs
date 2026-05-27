@@ -1,5 +1,6 @@
 use bevy::{
-    camera::visibility::RenderLayers, prelude::*
+    camera::visibility::RenderLayers, 
+    prelude::*
 };
 
 fn main() -> AppExit {
@@ -15,22 +16,19 @@ fn setup_cameras(mut commands: Commands) {
     commands.spawn((
         //first camera/bg camera
         Camera2d,
-        Bg,
         Camera {
             //this is for background art, idk we need a resources folder
             order: 0,
             clear_color: ClearColorConfig::Custom(Color::BLACK),
             ..default()
         },
-
-        RenderLayers::layer(0)
-        //can only see things that are on the layer 0, otherwise it won't render.
+        //Renderlayer is 0, its the default, make sure to match renderlayers
+        
     ));
-
+    //we lowk may need more, background, character, text, buttons thats 4 so far, good enough
     commands.spawn((
         //Second camera for character sprites
         Camera2d,
-        Char,
         Camera {
             //again for characters and stuff they hold etc.
             order: 1,
@@ -45,8 +43,4 @@ fn setup_cameras(mut commands: Commands) {
 }
 
 //components
-#[derive(Component)]
-struct Bg;
-//we will throw any backgrounds onto things with this component, aka the first camera
-#[derive(Component)]
-struct Char;
+
