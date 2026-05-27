@@ -1,16 +1,16 @@
 use bevy::{
-    camera::visibility::RenderLayers, 
-    prelude::*
+    camera::visibility::RenderLayers, color::palettes::css::BLACK, prelude::*
 };
 
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, setup_cameras)
+        .add_systems(Startup, setup)
         .run()
 }
 
-fn setup_cameras(mut commands: Commands) {
+//setup func is for setting up title screen, everything else can move after
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     //higher render layer = on top :)
 
     commands.spawn((
@@ -19,9 +19,11 @@ fn setup_cameras(mut commands: Commands) {
         Camera {
             //this is for background art, idk we need a resources folder
             order: 0,
-            clear_color: ClearColorConfig::Custom(Color::BLACK),
+            clear_color: ClearColorConfig::Custom(Color::Srgba(BLACK)),
+            //cursed as hell syntax
             ..default()
         },
+        RenderLayers::layer(0)
         //Renderlayer is 0, its the default, make sure to match renderlayers
         
     ));
@@ -32,13 +34,47 @@ fn setup_cameras(mut commands: Commands) {
         Camera {
             //again for characters and stuff they hold etc.
             order: 1,
-            clear_color: ClearColorConfig::Custom(Color::NONE),
+            clear_color: ClearColorConfig::None,
             ..default()
         },
 
         RenderLayers::layer(1)
     ));
 
+    commands.spawn((
+        //third camera for text box
+        Camera2d,
+        Camera {
+            //textboxes etc
+            order: 2,
+            clear_color: ClearColorConfig::None,
+            ..default()
+        },
+
+        RenderLayers::layer(2)
+    ));
+    
+    commands.spawn((
+        //last camera hopefully for ui/overlay and buttons
+        Camera2d,
+        Camera {
+            order: 3,
+            clear_color: ClearColorConfig::None,
+            ..default()
+        },
+        RenderLayers::layer(3)
+    ));
+
+    //image spawning
+    commands.spawn((
+        Sprite {
+            image: asset_server.load("image-not-found.png"),
+            custom_size: Some(Vec2::new(1920., 1080.)),
+            ..default()
+        },
+        RenderLayers::layer(0)
+        //default renderlayer is 0
+    ));
 
 }
 
