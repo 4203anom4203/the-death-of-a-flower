@@ -19,7 +19,7 @@ fn setup_camera(mut commands: Commands) {
         Camera {
             //this is for background art, idk we need a resources folder
             order: 0,
-            clear_color: ClearColorConfig::Custom(Color::WHITE),
+            clear_color: ClearColorConfig::Custom(Color::BLACK),
             ..default()
         },
 
