@@ -34,3 +34,4 @@ fn setup_camera(mut commands: Commands) {
 #[derive(Component)]
 struct Bg;
 //we will throw any backgrounds onto things with this component, aka the first camera
+//
