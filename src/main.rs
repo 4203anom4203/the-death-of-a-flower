@@ -69,7 +69,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Sprite {
             image: asset_server.load("image-not-found.png"),
-            custom_size: Some(Vec2::new(1920., 1080.)),
             ..default()
         },
         RenderLayers::layer(0)
