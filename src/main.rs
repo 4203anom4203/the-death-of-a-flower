@@ -1,11 +1,16 @@
 use bevy::{
-    camera::visibility::RenderLayers, color::palettes::css::BLACK, prelude::*
+    camera::visibility::RenderLayers,
+    color::palettes::css::BLACK,
+    input_focus::InputFocus,
+    prelude::*
 };
 
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
+        .insert_resource(InputFocus::default())
         .add_systems(Startup, setup)
+        .add_systems(Update, button_system)
         .run()
 }
 
@@ -77,5 +82,26 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 }
 
-//components
+fn button_system (
+    mut input_focus: ResMut<InputFocus>,
+    mut interaction_query: Query<(Entity, &Interaction), Changed<Interaction>>,
+) {
+    for (entity, interaction) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                input_focus.set(entity);
 
+            }
+
+            Interaction::Hovered => {
+                input_focus.set(entity);
+
+            }
+
+            Interaction::None => {
+                input_focus.clear();
+            }
+        }
+    }
+}
+//components
