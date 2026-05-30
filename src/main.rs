@@ -70,7 +70,16 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         RenderLayers::layer(3)
     ));
+    //we need another one for the settings actual window/popup
 
+    commands.spawn((
+        Camera2d, 
+        Camera {
+            order: 4,
+            clear_color: ClearColorConfig::None,
+            ..default()
+        }
+    ));    
     //image spawning
     commands.spawn((
         Sprite {
