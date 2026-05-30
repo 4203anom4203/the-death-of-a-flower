@@ -1,7 +1,9 @@
 use bevy::{
     camera::visibility::RenderLayers,
-    color::palettes::css::BLACK,
+    color::palettes::css::{BLACK, RED, YELLOW, GREEN}, //Don't mind these its for debug
     input_focus::InputFocus,
+    window::Window,
+    window::WindowMode,
     prelude::*
 };
 
@@ -9,15 +11,19 @@ use bevy::{
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
-        .insert_resource(InputFocus::default())
+        .init_resource::<InputFocus>()
         .add_systems(Startup, setup)
         .add_systems(Update, button_system)
         .run()
 }
 
 //setup func is for setting up title screen, everything else can move after
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Single<&mut Window>) {
     //higher render layer = on top :)
+
+    window.mode = WindowMode::BorderlessFullscreen(
+        MonitorSelection::Primary,
+    );
 
     commands.spawn((
         //first camera/bg camera
@@ -78,12 +84,14 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             order: 4,
             clear_color: ClearColorConfig::None,
             ..default()
-        }
+        },
+
+        RenderLayers::layer(4)
     ));    
     //image spawning
     commands.spawn((
         Sprite {
-            image: asset_server.load("image-not-found.png"),
+            image: asset_server.load("placeholder.png"),
             ..default()
         },
         RenderLayers::layer(0)
@@ -93,6 +101,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         //root node, contains the node
         //renders at top left, ill work on the animations for it later
+        Button,
+        //BorderColor::all(RED),
+        SettingsButton,
         Node {
             position_type: PositionType::Absolute,
             width: Val::Px(50.0),
@@ -101,6 +112,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             top: Val::Px(5.0),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
+            border: UiRect::all(Val::Px(5.0)), 
             ..default()
         }, 
         //if its not with the children macro it can't load a sprite because it will try
@@ -119,6 +131,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             
         )],
         RenderLayers::layer(3)
+        
         //i almost forgot this
     ));
 
@@ -126,24 +139,40 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 fn button_system (
     mut input_focus: ResMut<InputFocus>,
-    mut interaction_query: Query<(Entity, &Interaction), Changed<Interaction>>,
+    mut interaction_query: Query<(Entity, &Interaction, /* &mut BorderColor,*/ &Button, &SettingsButton), Changed<Interaction>>,
 ) {
-    for (entity, interaction) in &mut interaction_query {
+    for (entity, interaction, /*mut border_color,*/ &Button, &SettingsButton) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 input_focus.set(entity);
-
+                //*border_color = BorderColor::all(GREEN);
             }
 
             Interaction::Hovered => {
                 input_focus.set(entity);
-                
+                //*border_color = BorderColor::all(YELLOW);
             }
 
             Interaction::None => {
                 input_focus.clear();
+                //*border_color = BorderColor::all(RED);
             }
         }
     }
 }
 //components
+#[derive(Component)]
+struct SettingsButton;
+
+/*
+use 
+#[derive(Component)]
+enum MenuButton {
+    Settings,
+    Save,
+    Load,
+    Quit,
+}
+
+    when we add more than one button
+*/
