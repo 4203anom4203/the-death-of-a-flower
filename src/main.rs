@@ -5,6 +5,7 @@ use bevy::{
     prelude::*
 };
 
+
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -78,6 +79,35 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         RenderLayers::layer(0)
         //default renderlayer is 0
+    ));
+    //alr, this the settings icon.
+    commands.spawn((
+        //root node, contains the node
+        //hopefully i can make it at the top left
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Px(50.0),
+            height: Val::Px(50.0),
+            left: Val::Px(5.0),
+            top: Val::Px(5.0),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        }, 
+
+        children![(
+            //new imagenode with texture
+            ImageNode::new(asset_server.load("settings.png")),
+
+            Node {
+                width: Val::Px(43.0),
+                height: Val::Px(43.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            }
+            
+        )]
     ));
 
 }
