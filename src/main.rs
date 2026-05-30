@@ -83,7 +83,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     //alr, this the settings icon.
     commands.spawn((
         //root node, contains the node
-        //hopefully i can make it at the top left
+        //renders at top left, ill work on the animations for it later
         Node {
             position_type: PositionType::Absolute,
             width: Val::Px(50.0),
@@ -94,7 +94,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             align_items: AlignItems::Center,
             ..default()
         }, 
-
+        //if its not with the children macro it can't load a sprite because it will try
+        //to assume the properties for a node/bounding box
         children![(
             //new imagenode with texture
             ImageNode::new(asset_server.load("settings.png")),
@@ -107,7 +108,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             }
             
-        )]
+        )],
+        RenderLayers::layer(3)
+        //i almost forgot this
     ));
 
 }
@@ -125,7 +128,7 @@ fn button_system (
 
             Interaction::Hovered => {
                 input_focus.set(entity);
-
+                
             }
 
             Interaction::None => {
