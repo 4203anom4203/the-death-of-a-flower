@@ -54,7 +54,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
     commands.spawn((
         ZIndex(0), //bg
         Sprite {
-            image: asset_server.load("placeholder.png"),
+            image: asset_server.load("TitleScreen/Library.png"),
             ..default()
         },
         
@@ -117,7 +117,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
             Node {
                 width: Val::Percent(30.0),
                 height: Val::Percent(60.0),
-                border: UiRect::all(Val::Px(16.0)),
+                border: UiRect::all(Val::Px(12.0)),
                 border_radius: BorderRadius::all(Val::Px(12.0)),
                 ..default()
             },
