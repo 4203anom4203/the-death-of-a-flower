@@ -1,8 +1,8 @@
 use bevy::{
-    camera::visibility::RenderLayers, color::palettes::css::{BLACK, GREEN, RED, YELLOW}, image::DataFormat::Rgba, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
+    camera::visibility::RenderLayers, color::palettes::css::{BLACK, GREEN, RED, YELLOW}, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 
-
+const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -108,7 +108,24 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
-        }
+        },
+
+
+
+        children![(
+            //new thingy
+            Node {
+                width: Val::Percent(30.0),
+                height: Val::Percent(60.0),
+                border: UiRect::all(Val::Px(16.0)),
+                border_radius: BorderRadius::all(Val::Px(12.0)),
+                ..default()
+            },
+            BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
+            
+            BorderColor::all(UI_BORDER_COLOR),
+            
+        )],
     ));
 
 }
