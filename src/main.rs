@@ -2,8 +2,6 @@ use bevy::{
     camera::visibility::RenderLayers, color::palettes::css::{BLACK, GREEN, RED, YELLOW}, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 
-use crate::TitleScreenSwap::BaseLibrary;
-
 const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
 fn main() -> AppExit {
     App::new()
