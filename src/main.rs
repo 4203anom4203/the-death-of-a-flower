@@ -2,6 +2,8 @@ use bevy::{
     camera::visibility::RenderLayers, color::palettes::css::{BLACK, GREEN, RED, YELLOW}, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 
+use crate::TitleScreenSwap::BaseLibrary;
+
 const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
 fn main() -> AppExit {
     App::new()
@@ -11,6 +13,7 @@ fn main() -> AppExit {
         .add_systems(Startup, setup)
         .add_systems(Update, settings_button_system)
         .add_systems(Update, update_settings_menu)
+        .add_systems(Update, update_title_background)
         .run()
 }
 
@@ -53,8 +56,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
     //image spawning
     commands.spawn((
         ZIndex(0), //bg
+        TitleScreen,
         Sprite {
-            image: asset_server.load("TitleScreen/Library.png"),
+            image: asset_server.load("TitleScreen/Library_Soft.png"),
             ..default()
         },
         
@@ -128,6 +132,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
         )],
     ));
 
+    commands.insert_resource(TitleScreenState {
+        state: TitleScreenSwap::BaseLibrary,
+        timer: Timer::from_seconds(4.95, TimerMode::Once),
+    });
+
 }
 
 fn settings_button_system (
@@ -173,6 +182,48 @@ fn update_settings_menu (
     
 }
 
+fn update_title_background (
+    mut titlescreen: ResMut<TitleScreenState>,
+    time: Res<Time>,
+    asset_server: Res<AssetServer>,
+    mut query: Query<&mut Sprite, With<TitleScreen>>
+) {
+    titlescreen.timer.tick(time.delta());
+
+    if titlescreen.timer.just_finished() {
+        for mut sprite in &mut query {
+            match titlescreen.state {
+
+                TitleScreenSwap::Transition1 => {
+                    sprite.image = asset_server.load("TitleScreen/Glitch_Frame.png");
+                    titlescreen.timer = Timer::from_seconds(0.05, TimerMode::Once);
+                    titlescreen.state = TitleScreenSwap::BaseLibrary;
+                }
+                TitleScreenSwap::BaseLibrary => {
+                    sprite.image = asset_server.load("TitleScreen/Library_Soft.png");
+                    titlescreen.timer = Timer::from_seconds(4.95, TimerMode::Once);
+                    titlescreen.state = TitleScreenSwap::Transition2;
+                    
+                }
+
+                TitleScreenSwap::Transition2 => {
+                    sprite.image = asset_server.load("TitleScreen/Glitch_Frame.png");
+                    titlescreen.timer = Timer::from_seconds(0.05, TimerMode::Once);
+                    titlescreen.state = TitleScreenSwap::DecayLibrary;
+                }
+
+                TitleScreenSwap::DecayLibrary => {
+                    sprite.image = asset_server.load("TitleScreen/Decay_Library_Tint.png");
+                    titlescreen.timer = Timer::from_seconds(4.95, TimerMode::Once);
+                    titlescreen.state = TitleScreenSwap::Transition1;
+                }
+
+                
+            }
+
+        }
+    }
+}
 
 #[derive(Default, PartialEq)]
 enum Menu {
@@ -193,4 +244,22 @@ struct SettingsButton;
 
 #[derive(Component)]
 struct SettingsPanel;
+
+#[derive(Component)]
+struct TitleScreen;
+
+#[derive(Resource, Default)]
+enum TitleScreenSwap {
+    #[default]
+    BaseLibrary,
+    DecayLibrary,
+    Transition1,
+    Transition2,
+}
+
+#[derive(Resource, Default)]
+struct TitleScreenState {
+    state: TitleScreenSwap,
+    timer: Timer,
+}
 //my linter blew up because of unused code
