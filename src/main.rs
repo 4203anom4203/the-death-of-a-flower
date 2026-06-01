@@ -1,11 +1,16 @@
 use bevy::{
-    camera::visibility::RenderLayers, color::palettes::css::{BLACK, GREEN, RED, YELLOW}, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
+    camera::visibility::RenderLayers, color::palettes::css::{BLACK}, input_focus::InputFocus, prelude::*, window::{Window, WindowMode},
 };
-
+use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
 fn main() -> AppExit {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins((
+            EmbeddedAssetPlugin {
+                mode: PluginMode::ReplaceDefault,
+            },
+            DefaultPlugins,
+        ))
         .init_resource::<InputFocus>()
         .init_resource::<MenuState>()
         .add_systems(Startup, setup)
@@ -14,7 +19,6 @@ fn main() -> AppExit {
         .add_systems(Update, update_title_background)
         .run()
 }
-
 
 //setup func is for setting up title screen, everything else can move after
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Single<&mut Window>) {
