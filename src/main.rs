@@ -1,5 +1,5 @@
 use bevy::{
-    camera::visibility::RenderLayers, color::palettes::css::{BLACK}, input_focus::InputFocus, prelude::*, window::{Window, WindowMode},
+    camera::visibility::RenderLayers, color::palettes::css::BLACK, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
@@ -17,6 +17,7 @@ fn main() -> AppExit {
         .add_systems(Update, settings_button_system)
         .add_systems(Update, update_settings_menu)
         .add_systems(Update, update_title_background)
+        .add_systems(Update, settings_menu_keybind)
         .run()
 }
 
@@ -171,7 +172,7 @@ fn settings_button_system (
 }
 
 fn update_settings_menu (
-    menu: ResMut<MenuState>,
+    menu: Res<MenuState>,
     mut panel_query: Query<&mut Visibility, With<SettingsPanel>>,
 ) {
     for mut visibility in &mut panel_query {
@@ -182,6 +183,17 @@ fn update_settings_menu (
         };
     }
     
+}
+
+fn settings_menu_keybind (
+    input: Res<ButtonInput<KeyCode>>,
+    mut menu: ResMut<MenuState>,
+) {
+    if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::Settings {
+        menu.current_menu = Menu::None;
+    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::None {
+        menu.current_menu = Menu::Settings;
+    }
 }
 
 fn update_title_background (
