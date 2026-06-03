@@ -25,7 +25,9 @@ fn main() -> AppExit {
 //setup func is for setting up title screen, everything else can move after
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Single<&mut Window>) {
     //higher render layer = on top :)
-
+    //TODO: add buttons, in ddlc style
+    //TODO: settings buttons in menu
+    //TODO: SAVE FILES
     window.mode = WindowMode::BorderlessFullscreen(
         MonitorSelection::Primary,
     );
