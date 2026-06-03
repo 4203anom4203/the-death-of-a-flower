@@ -1,8 +1,9 @@
 use bevy::{
-    camera::visibility::RenderLayers, color::palettes::css::BLACK, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
+    camera::{visibility::RenderLayers}, color::palettes::css::BLACK, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
+
 fn main() -> AppExit {
     App::new()
         .add_plugins((
@@ -30,8 +31,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
     );
 
     commands.spawn((
-        //first camera/bg camera
+        //first camera
         Camera2d,
+        WorldCamera,
         Camera {
             //This camera is for bg/sprites/every non interact item
             order: 0,
@@ -39,71 +41,64 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
             //cursed as hell syntax
             ..default()
         },
+        
         RenderLayers::layer(0)
         
     ));
-    //we lowk may need more, background, character, text, buttons thats 4 so far, good enough
-    commands.spawn((
-        //Second camera for character sprites
-        Camera2d,
-        Camera {
-            //again for characters and stuff they hold etc.
-            order: 1,
-            clear_color: ClearColorConfig::None,
-            ..default()
-        },
 
-        RenderLayers::layer(1)
-    ));
-
-    //image spawning
-    commands.spawn((
-        ZIndex(0), //bg
-        TitleScreen,
-        Sprite {
-            image: asset_server.load("TitleScreen/Library_Soft.png"),
-            ..default()
-        },
-        
-        //default renderlayer is 0
-    ));
-    //alr, this the settings icon.
-    commands.spawn((
-        //root node, contains the node
-        //renders at top left, ill work on the animations for it later
-        Button,
-        //BorderColor::all(RED),
-        SettingsButton,
-        ZIndex(5), //buttons
+        //alr, this the settings icon.
+        commands.spawn((
         Node {
-            position_type: PositionType::Absolute,
-            width: Val::Px(50.0),
-            height: Val::Px(50.0),
-            left: Val::Px(5.0),
-            top: Val::Px(5.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            border: UiRect::all(Val::Px(5.0)), 
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_content: AlignContent::FlexStart,
             ..default()
-        }, 
-        //if its not with the children macro it can't load a sprite because it will try
-        //to assume the properties for a node/bounding box
-        children![(
-            //new imagenode with texture
-            ImageNode::new(asset_server.load("settings.png")),
+        }, //root node for everything
+    ))
+    .with_children(|parent| {
 
-            Node {
-                width: Val::Px(43.0),
-                height: Val::Px(43.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+        parent.spawn((
+            TitleBackgroundImage,
+            ImageNode {
+                image: asset_server.load("TitleScreen/Library_Soft.png"),
+                image_mode: NodeImageMode::Auto,
                 ..default()
-            }
-            
-        )],
-        
-        //i almost forgot this
-    ));
+            },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                ..default() //bg
+            },
+        ));
+
+        parent.spawn((
+            Button,
+            SettingsButton,
+            Node {
+                position_type: PositionType::Absolute,
+                top: Val::Px(5.0),
+                left: Val::Px(5.0),
+                width: Val::Px(50.0),
+                height: Val::Px(50.0),
+                ..default()
+            },
+        ))
+        .with_children(|btn| {
+            btn.spawn((
+                ImageNode {
+                    image: asset_server.load("settings.png"),
+                    image_mode: NodeImageMode::Auto,
+                    ..default() //settings
+                },
+                Node {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    ..default()
+                },
+            ));
+        });
+    });
 
     commands.spawn((
         SettingsPanel,
@@ -200,34 +195,34 @@ fn update_title_background (
     mut titlescreen: ResMut<TitleScreenState>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
-    mut query: Query<&mut Sprite, With<TitleScreen>>
+    mut query: Query<&mut ImageNode, With<TitleBackgroundImage>>
 ) {
     titlescreen.timer.tick(time.delta());
 
     if titlescreen.timer.just_finished() {
-        for mut sprite in &mut query {
+        for mut image_node in &mut query {
             match titlescreen.state {
 
                 TitleScreenSwap::Transition1 => {
-                    sprite.image = asset_server.load("TitleScreen/Glitch_Frame.png");
+                    image_node.image = asset_server.load("TitleScreen/Glitch_Frame.png");
                     titlescreen.timer = Timer::from_seconds(0.05, TimerMode::Once);
                     titlescreen.state = TitleScreenSwap::BaseLibrary;
                 }
                 TitleScreenSwap::BaseLibrary => {
-                    sprite.image = asset_server.load("TitleScreen/Library_Soft.png");
+                    image_node.image = asset_server.load("TitleScreen/Library_Soft.png");
                     titlescreen.timer = Timer::from_seconds(4.95, TimerMode::Once);
                     titlescreen.state = TitleScreenSwap::Transition2;
                     
                 }
 
                 TitleScreenSwap::Transition2 => {
-                    sprite.image = asset_server.load("TitleScreen/Glitch_Frame.png");
+                    image_node.image = asset_server.load("TitleScreen/Glitch_Frame.png");
                     titlescreen.timer = Timer::from_seconds(0.05, TimerMode::Once);
                     titlescreen.state = TitleScreenSwap::DecayLibrary;
                 }
 
                 TitleScreenSwap::DecayLibrary => {
-                    sprite.image = asset_server.load("TitleScreen/Decay_Library_Tint.png");
+                    image_node.image = asset_server.load("TitleScreen/Decay_Library_Tint.png");
                     titlescreen.timer = Timer::from_seconds(4.95, TimerMode::Once);
                     titlescreen.state = TitleScreenSwap::Transition1;
                 }
@@ -259,9 +254,6 @@ struct SettingsButton;
 #[derive(Component)]
 struct SettingsPanel;
 
-#[derive(Component)]
-struct TitleScreen;
-
 #[derive(Resource, Default)]
 enum TitleScreenSwap {
     #[default]
@@ -276,4 +268,10 @@ struct TitleScreenState {
     state: TitleScreenSwap,
     timer: Timer,
 }
+
+#[derive(Component)]
+struct WorldCamera;
+
+#[derive(Component)]
+struct TitleBackgroundImage;
 //my linter blew up because of unused code
