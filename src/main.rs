@@ -2,7 +2,7 @@ use bevy::{
     color::palettes::css::BLACK, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
-const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
+const PURPLE: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
 
 fn main() -> AppExit {
     App::new()
@@ -105,15 +105,16 @@ fn setup(
             (
                 Button,
                 TitleButton,
-                ZIndex(5), //doesn't get close to the settings button so we should be fine
+                ZIndex(5),
                 Node {
+                    position_type: PositionType::Absolute,
+                    height: Val::Percent(10.0),
                     width: Val::Percent(20.0),
-                    height: Val::Percent(5.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+                    left: Val::Px(50.0),
+                    top: Val::Percent(45.0),
                     ..default()
                 },
-                BackgroundColor(Color::srgb(1.0, 1.0, 1.0)),
+
                 children![(
                     Text::new("Start"),
                     TextFont {
@@ -121,12 +122,12 @@ fn setup(
                         font_size: 35.0,
                         ..default()
                     },
-                    TextColor(Color::srgb(0.749, 0.0, 1.0)),
-                )]
+                    TextColor(PURPLE),
+                )],
             ),
         ],
     ));
-
+    //settings OVERLAY
     commands.spawn((
         SettingsPanel,
         ZIndex(99), //must overlay everything
@@ -150,7 +151,7 @@ fn setup(
                 ..default()
             },
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
-            BorderColor::all(UI_BORDER_COLOR),
+            BorderColor::all(PURPLE),
         )],
     ));
 
