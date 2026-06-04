@@ -1,5 +1,5 @@
 use bevy::{
-    camera::{visibility::RenderLayers}, color::palettes::css::BLACK, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
+    color::palettes::css::BLACK, input_focus::InputFocus, prelude::*, window::{Window, WindowMode}
 };
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 const UI_BORDER_COLOR: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
@@ -23,33 +23,34 @@ fn main() -> AppExit {
 }
 
 //setup func is for setting up title screen, everything else can move after
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Single<&mut Window>) {
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut window: Single<&mut Window>,
+) {
     //higher render layer = on top :)
     //TODO: add buttons, in ddlc style
-    //TODO: settings buttons in menu
+    //TODO: settings buttons in menup
     //TODO: SAVE FILES
     window.mode = WindowMode::BorderlessFullscreen(
         MonitorSelection::Primary,
     );
 
     commands.spawn((
-        //first camera
+        //camera
         Camera2d,
         WorldCamera,
         Camera {
-            //This camera is for bg/sprites/every non interact item
+            //This camera is for everything now
             order: 0,
             clear_color: ClearColorConfig::Custom(Color::Srgba(BLACK)),
             //cursed as hell syntax
             ..default()
         },
-        
-        RenderLayers::layer(0)
-        
     ));
 
-        //alr, this the settings icon.
-        commands.spawn((
+    //main node to render on
+    commands.spawn((
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
@@ -57,53 +58,78 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
             align_content: AlignContent::FlexStart,
             ..default()
         }, //root node for everything
-    ))
-    .with_children(|parent| {
 
-        parent.spawn((
-            TitleBackgroundImage,
-            ImageNode {
-                image: asset_server.load("TitleScreen/Library_Soft.png"),
-                image_mode: NodeImageMode::Auto,
-                ..default()
-            },
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                ..default() //bg
-            },
-        ));
-
-        parent.spawn((
-            Button,
-            SettingsButton,
-            Node {
-                position_type: PositionType::Absolute,
-                top: Val::Px(5.0),
-                left: Val::Px(5.0),
-                width: Val::Px(50.0),
-                height: Val::Px(50.0),
-                ..default()
-            },
-        ))
-        .with_children(|btn| {
-            btn.spawn((
+        children![
+            (
+                TitleBackgroundImage,
+                ZIndex(0), //all background images will spawn on 0
                 ImageNode {
-                    image: asset_server.load("settings.png"),
+                    image: asset_server.load("TitleScreen/Library_Soft.png"),
                     image_mode: NodeImageMode::Auto,
-                    ..default() //settings
+                    ..default()
                 },
                 Node {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
+                    ..default() //bg
+                },
+            ),
+
+            (
+                Button,
+                SettingsButton,
+                ZIndex(5), //simple ui button, but the sprites will render on 3 or something
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(5.0),
+                    left: Val::Px(5.0),
+                    width: Val::Px(50.0),
+                    height: Val::Px(50.0),
                     ..default()
                 },
-            ));
-        });
-    });
+
+                children![(
+                    ImageNode {
+                        image: asset_server.load("settings.png"),
+                        image_mode: NodeImageMode::Auto,
+                        ..default() //settings
+                    },
+                    Node {
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                        ..default()
+                    },
+                )]
+            ),
+
+            (
+                Button,
+                TitleButton,
+                ZIndex(5), //doesn't get close to the settings button so we should be fine
+                Node {
+                    width: Val::Percent(20.0),
+                    height: Val::Percent(5.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                BackgroundColor(Color::srgb(1.0, 1.0, 1.0)),
+                children![(
+                    Text::new("Start"),
+                    TextFont {
+                        font: asset_server.load("fonts/comic_sans.ttf"),
+                        font_size: 35.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.749, 0.0, 1.0)),
+                )]
+            ),
+        ],
+    ));
 
     commands.spawn((
         SettingsPanel,
+        ZIndex(99), //must overlay everything
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.8)),
         Visibility::Hidden,
         Node {
@@ -114,10 +140,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
             ..default()
         },
 
-
-
         children![(
-            //new thingy
+            ZIndex(100), //overlays the actual overlay
             Node {
                 width: Val::Percent(30.0),
                 height: Val::Percent(60.0),
@@ -126,9 +150,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
                 ..default()
             },
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
-            
             BorderColor::all(UI_BORDER_COLOR),
-            
         )],
     ));
 
@@ -136,7 +158,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut window: Sin
         state: TitleScreenSwap::BaseLibrary,
         timer: Timer::from_seconds(4.95, TimerMode::Once),
     });
-
 }
 
 fn settings_button_system (
@@ -276,4 +297,7 @@ struct WorldCamera;
 
 #[derive(Component)]
 struct TitleBackgroundImage;
+
+#[derive(Component)]
+struct TitleButton;
 //my linter blew up because of unused code
