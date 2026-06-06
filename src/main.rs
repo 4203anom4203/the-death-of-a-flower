@@ -14,11 +14,13 @@ fn main() -> AppExit {
         ))
         .init_resource::<InputFocus>()
         .init_resource::<MenuState>()
+        .init_resource::<GameState>()
         .add_systems(Startup, setup)
         .add_systems(Update, settings_button_system)
         .add_systems(Update, update_settings_menu)
         .add_systems(Update, update_title_background)
         .add_systems(Update, settings_menu_keybind)
+        .add_systems(Update, start_button_system)
         .run()
 }
 
@@ -29,7 +31,8 @@ fn setup(
     mut window: Single<&mut Window>,
 ) {
     //higher render layer = on top :)
-    //TODO: add buttons, in ddlc style
+    //TODO: Make the background go blank with the thingy
+    /////// if statement on the titlescreenswap.
     //TODO: settings buttons in menup
     //TODO: SAVE FILES
     window.mode = WindowMode::BorderlessFullscreen(
@@ -102,27 +105,28 @@ fn setup(
                 )]
             ),
 
-            (
+            (//start button
                 Button,
-                TitleButton,
+                StartButton,
+                Visibility::Visible,
                 ZIndex(5),
                 Node {
                     position_type: PositionType::Absolute,
                     height: Val::Percent(10.0),
                     width: Val::Percent(20.0),
-                    left: Val::Px(50.0),
-                    top: Val::Percent(45.0),
+                    left: Val::Percent(10.0),
+                    top: Val::Percent(30.0),
                     ..default()
                 },
 
                 children![(
                     Text::new("Start"),
                     TextFont {
-                        font: asset_server.load("fonts/comic_sans.ttf"),
-                        font_size: 35.0,
+                        font: asset_server.load("fonts/comic_sans_bold.ttf"),
+                        font_size: 60.0,
                         ..default()
                     },
-                    TextColor(PURPLE),
+                    TextColor(Color::WHITE),
                 )],
             ),
         ],
@@ -173,8 +177,8 @@ fn settings_button_system (
                 //*border_color = BorderColor::all(GREEN);
                 state.current_menu = match state.current_menu {
                 Menu::None => Menu::Settings,
-                Menu::Settings => Menu::None, //settings overlay tobble
-};
+                Menu::Settings => Menu::None, //settings overlay toggle
+                };
             }
 
             Interaction::Hovered => {
@@ -185,6 +189,30 @@ fn settings_button_system (
             Interaction::None => {
                 input_focus.clear();
                 //*border_color = BorderColor::all(RED);
+            }
+        }
+    }
+}
+
+fn start_button_system (
+    mut input_focus: ResMut<InputFocus>,
+    mut state: ResMut<GameState>,
+    mut interaction_query: Query<(Entity, &Button, &StartButton, &mut Visibility, &Interaction), Changed<Interaction>>,
+) {
+    for (entity, &startbutton, button, mut visibility, interaction) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                input_focus.set(entity);
+                state.state = GameStateResource::InGame;
+                *visibility = Visibility::Hidden;
+            }
+
+            Interaction::Hovered => {
+                input_focus.set(entity);
+            }
+
+            Interaction::None => {
+                input_focus.clear();
             }
         }
     }
@@ -300,5 +328,17 @@ struct WorldCamera;
 struct TitleBackgroundImage;
 
 #[derive(Component)]
-struct TitleButton;
+struct StartButton;
+
+#[derive(Resource, Default)]
+enum GameStateResource {
+    #[default]
+    StartMenu,
+    InGame,
+}
+
+#[derive(Resource, Default)]
+struct GameState {
+    state: GameStateResource
+}
 //my linter blew up because of unused code
