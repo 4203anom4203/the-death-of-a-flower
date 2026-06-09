@@ -199,12 +199,13 @@ fn start_button_system (
     mut state: ResMut<GameState>,
     mut interaction_query: Query<(Entity, &Button, &StartButton, &mut Visibility, &Interaction), Changed<Interaction>>,
 ) {
-    for (entity, &startbutton, button, mut visibility, interaction) in &mut interaction_query {
+    for (entity, _startbutton, _button, mut visibility, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 input_focus.set(entity);
                 state.state = GameStateResource::InGame;
                 *visibility = Visibility::Hidden;
+                
             }
 
             Interaction::Hovered => {
@@ -246,12 +247,13 @@ fn settings_menu_keybind (
 fn update_title_background (
     mut titlescreen: ResMut<TitleScreenState>,
     time: Res<Time>,
+    gamestate: Res<GameState>,
     asset_server: Res<AssetServer>,
     mut query: Query<&mut ImageNode, With<TitleBackgroundImage>>
 ) {
     titlescreen.timer.tick(time.delta());
 
-    if titlescreen.timer.just_finished() {
+    if titlescreen.timer.just_finished() && gamestate.state == GameStateResource::StartMenu {
         for mut image_node in &mut query {
             match titlescreen.state {
 
@@ -283,8 +285,12 @@ fn update_title_background (
             }
 
         }
+    } else if !titlescreen.timer.just_finished() && gamestate.state == GameStateResource::InGame {
+        for mut image_node in &mut query {
+            image_node.image = asset_server.load("blank-background.png");
+        }
     }
-}
+}//holy shit cursed as fuck logic but it works
 
 #[derive(Default, PartialEq)]
 enum Menu {
@@ -330,7 +336,7 @@ struct TitleBackgroundImage;
 #[derive(Component)]
 struct StartButton;
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, PartialEq)]
 enum GameStateResource {
     #[default]
     StartMenu,
