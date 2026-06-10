@@ -84,24 +84,21 @@ fn setup(
                 ZIndex(5), //simple ui button, but the sprites will render on 3 or something
                 Node {
                     position_type: PositionType::Absolute,
-                    top: Val::Px(5.0),
-                    left: Val::Px(5.0),
-                    width: Val::Px(50.0),
-                    height: Val::Px(50.0),
+                    height: Val::Percent(10.0),
+                    width: Val::Percent(20.0),
+                    left: Val::Percent(10.0),
+                    top: Val::Percent(40.0),
                     ..default()
                 },
 
                 children![(
-                    ImageNode {
-                        image: asset_server.load("settings.png"),
-                        image_mode: NodeImageMode::Auto,
-                        ..default() //settings
-                    },
-                    Node {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(100.0),
+                    Text::new("Settings"),
+                    TextFont {
+                        font: asset_server.load("fonts/comic_sans_bold.ttf"),
+                        font_size: 60.0,
                         ..default()
                     },
+                    TextColor(Color::WHITE),
                 )]
             ),
 
@@ -207,7 +204,7 @@ fn start_button_system (
                 *visibility = Visibility::Hidden;
                 
             }
-
+            
             Interaction::Hovered => {
                 input_focus.set(entity);
             }
