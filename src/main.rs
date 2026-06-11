@@ -21,6 +21,7 @@ fn main() -> AppExit {
         .add_systems(Update, update_title_background)
         .add_systems(Update, settings_menu_keybind)
         .add_systems(Update, start_button_system)
+        .add_systems(Update, settings_button_dissapear)
         .run()
 }
 
@@ -82,6 +83,7 @@ fn setup(
                 Button,
                 SettingsButton,
                 ZIndex(5), //simple ui button, but the sprites will render on 3 or something
+                Visibility::Visible,
                 Node {
                     position_type: PositionType::Absolute,
                     height: Val::Percent(10.0),
@@ -187,6 +189,19 @@ fn settings_button_system (
                 input_focus.clear();
                 //*border_color = BorderColor::all(RED);
             }
+        }
+    }
+}
+
+fn settings_button_dissapear (
+    state: Res<GameState>,
+    mut query: Query<&mut Visibility, With<SettingsButton>>, 
+) {
+    for mut visibility in &mut query {
+        *visibility = if state.state == GameStateResource::InGame {
+            Visibility::Hidden
+        } else {
+            Visibility::Visible
         }
     }
 }
