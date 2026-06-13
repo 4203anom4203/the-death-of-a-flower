@@ -128,6 +128,32 @@ fn setup(
                     TextColor(Color::WHITE),
                 )],
             ),
+
+            (
+                Button,
+                CreditsButton,
+                Visibility::Visible,
+                ZIndex(5),
+                Node{
+                    position_type: PositionType::Absolute,
+                    height:Val::Percent(10.0),
+                    width: Val::Percent(10.0),
+                    left: Val::Percent(10.0),
+                    top: Val::Percent(50.0),
+                    ..default()
+                },
+
+                children![(
+                    Text::new("Credits"),
+                    TextFont { 
+                        font: asset_server.load("fonts/comic_sans_bold.ttf"),
+                        font_size: 60.0,
+                        ..default()
+                    },
+
+                    TextColor(Color::WHITE),
+                )]
+            ),
         ],
     ));
     //settings OVERLAY
@@ -248,10 +274,11 @@ fn update_settings_menu (
 fn settings_menu_keybind (
     input: Res<ButtonInput<KeyCode>>,
     mut menu: ResMut<MenuState>,
+    gamestate: Res<GameState>,
 ) {
     if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::Settings {
         menu.current_menu = Menu::None;
-    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::None {
+    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::None&&gamestate.state == GameStateResource::InGame {
         menu.current_menu = Menu::Settings;
     }
 }
@@ -359,4 +386,7 @@ enum GameStateResource {
 struct GameState {
     state: GameStateResource
 }
+
+#[derive(Component)]
+struct CreditsButton;
 //my linter blew up because of unused code
