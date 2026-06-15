@@ -93,7 +93,7 @@ fn setup(
                     height: Val::Percent(10.0),
                     width: Val::Percent(20.0),
                     left: Val::Percent(10.0),
-                    top: Val::Percent(40.0),
+                    top: Val::Percent(30.0),
                     ..default()
                 },
 
@@ -101,7 +101,7 @@ fn setup(
                     Text::new("Settings"),
                     TextFont {
                         font: asset_server.load("fonts/NotoSans.ttf"),
-                        font_size: 60.0,
+                        font_size: 80.0,
                         ..default()
                     },
                     TextColor(Color::WHITE),
@@ -119,7 +119,7 @@ fn setup(
                     height: Val::Percent(10.0),
                     width: Val::Percent(20.0),
                     left: Val::Percent(10.0),
-                    top: Val::Percent(30.0),
+                    top: Val::Percent(20.0),
                     ..default()
                 },
 
@@ -127,7 +127,7 @@ fn setup(
                     Text::new("Start"),
                     TextFont {
                         font: asset_server.load("fonts/NotoSans.ttf"),
-                        font_size: 60.0,
+                        font_size: 80.0,
                         ..default()
                     },
                     TextColor(Color::WHITE),
@@ -145,7 +145,7 @@ fn setup(
                     height:Val::Percent(10.0),
                     width: Val::Percent(10.0),
                     left: Val::Percent(10.0),
-                    top: Val::Percent(50.0),
+                    top: Val::Percent(40.0),
                     ..default()
                 },
 
@@ -153,7 +153,7 @@ fn setup(
                     Text::new("Credits"),
                     TextFont { 
                         font: asset_server.load("fonts/NotoSans.ttf"),
-                        font_size: 60.0,
+                        font_size: 80.0,
                         ..default()
                     },
 
@@ -209,8 +209,8 @@ fn setup(
             (
                 ZIndex(100),
                 Node {
-                    width: Val::Percent(30.0),
-                    height: Val::Percent(60.0),
+                    width: Val::Percent(25.0),
+                    height: Val::Percent(20.0),
                     border: UiRect::all(Val::Px(12.0)),
                     border_radius: BorderRadius::all(Val::Px(12.0)),
                     ..default()
@@ -224,7 +224,7 @@ fn setup(
                 Node {
                     position_type: PositionType::Absolute,
                     width: Val::Percent(25.0),
-                    height: Val::Percent(50.0),
+                    height: Val::Percent(10.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
@@ -232,10 +232,10 @@ fn setup(
 
                 children![
                     (
-                        Text::new("Art: Chibi|Neko      Story: Chibi|Neko and Rimi        Programming: Anøm  Music: SgtSlippery"),
+                        Text::new("Art: Chibi|Neko and Rimi \nStory: Chibi|Neko and Rimi \nCoding: Anøm \nMusic: SgtSlippery"),
                         TextFont { 
                             font: asset_server.load("fonts/NotoSans.ttf"),
-                            font_size: 50.0,
+                            font_size: 30.0,
                             ..default()
                         },
                         TextColor(Color::WHITE),
