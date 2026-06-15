@@ -15,13 +15,16 @@ fn main() -> AppExit {
         .init_resource::<InputFocus>()
         .init_resource::<MenuState>()
         .init_resource::<GameState>()
+        .init_resource::<CreditsState>()
         .add_systems(Startup, setup)
         .add_systems(Update, settings_button_system)
         .add_systems(Update, update_settings_menu)
         .add_systems(Update, update_title_background)
         .add_systems(Update, settings_menu_keybind)
         .add_systems(Update, start_button_system)
-        .add_systems(Update, settings_button_dissapear)
+        .add_systems(Update, button_dissapear)
+        .add_systems(Update, credits_button_system)
+        .add_systems(Update, update_credits_menu)
         .run()
 }
 
@@ -82,6 +85,7 @@ fn setup(
             (
                 Button,
                 SettingsButton,
+                MenuButton,
                 ZIndex(5), //simple ui button, but the sprites will render on 3 or something
                 Visibility::Visible,
                 Node {
@@ -96,7 +100,7 @@ fn setup(
                 children![(
                     Text::new("Settings"),
                     TextFont {
-                        font: asset_server.load("fonts/comic_sans_bold.ttf"),
+                        font: asset_server.load("fonts/NotoSans.ttf"),
                         font_size: 60.0,
                         ..default()
                     },
@@ -106,6 +110,7 @@ fn setup(
 
             (//start button
                 Button,
+                MenuButton,
                 StartButton,
                 Visibility::Visible,
                 ZIndex(5),
@@ -121,7 +126,7 @@ fn setup(
                 children![(
                     Text::new("Start"),
                     TextFont {
-                        font: asset_server.load("fonts/comic_sans_bold.ttf"),
+                        font: asset_server.load("fonts/NotoSans.ttf"),
                         font_size: 60.0,
                         ..default()
                     },
@@ -131,6 +136,7 @@ fn setup(
 
             (
                 Button,
+                MenuButton,
                 CreditsButton,
                 Visibility::Visible,
                 ZIndex(5),
@@ -146,7 +152,7 @@ fn setup(
                 children![(
                     Text::new("Credits"),
                     TextFont { 
-                        font: asset_server.load("fonts/comic_sans_bold.ttf"),
+                        font: asset_server.load("fonts/NotoSans.ttf"),
                         font_size: 60.0,
                         ..default()
                     },
@@ -170,67 +176,81 @@ fn setup(
             ..default()
         },
 
-        children![(
-            ZIndex(100), //overlays the actual overlay
-            Node {
-                width: Val::Percent(30.0),
-                height: Val::Percent(60.0),
-                border: UiRect::all(Val::Px(12.0)),
-                border_radius: BorderRadius::all(Val::Px(12.0)),
-                ..default()
-            },
-            BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
-            BorderColor::all(PURPLE),
-        )],
+        children![
+            (
+                ZIndex(100), //overlays the actual overlay
+                Node {
+                    width: Val::Percent(30.0),
+                    height: Val::Percent(60.0),
+                    border: UiRect::all(Val::Px(12.0)),
+                    border_radius: BorderRadius::all(Val::Px(12.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
+                BorderColor::all(PURPLE),
+            ),
+        ],
     ));
+    //ik i can make this more efficent but my lazy ass aint gonna do that rn
+    commands.spawn((
+        CreditsWindow,
+        ZIndex(99),
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.9)),
+        Visibility::Hidden,
+        Node{
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
 
+        children![
+            (
+                ZIndex(100),
+                Node {
+                    width: Val::Percent(30.0),
+                    height: Val::Percent(60.0),
+                    border: UiRect::all(Val::Px(12.0)),
+                    border_radius: BorderRadius::all(Val::Px(12.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
+                BorderColor::all(PURPLE),
+            ),
+
+            (
+                ZIndex(101),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(25.0),
+                    height: Val::Percent(50.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+
+                children![
+                    (
+                        Text::new("Art: Chibi|Neko      Story: Chibi|Neko and Rimi        Programming: Anøm  Music: SgtSlippery"),
+                        TextFont { 
+                            font: asset_server.load("fonts/NotoSans.ttf"),
+                            font_size: 50.0,
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
+                    ),
+                ]
+            )
+
+        ],
+    ));
     commands.insert_resource(TitleScreenState {
         state: TitleScreenSwap::BaseLibrary,
         timer: Timer::from_seconds(4.95, TimerMode::Once),
     });
 }
 
-fn settings_button_system (
-    mut input_focus: ResMut<InputFocus>,
-    mut state: ResMut<MenuState>,
-    mut interaction_query: Query<(Entity, &Interaction, /* &mut BorderColor,*/ &Button, &SettingsButton), Changed<Interaction>>,
-) {
-    for (entity, interaction, /*mut border_color,*/ &Button, &SettingsButton) in &mut interaction_query {
-        match *interaction {
-            Interaction::Pressed => {
-                input_focus.set(entity);
-                //*border_color = BorderColor::all(GREEN);
-                state.current_menu = match state.current_menu {
-                Menu::None => Menu::Settings,
-                Menu::Settings => Menu::None, //settings overlay toggle
-                };
-            }
-
-            Interaction::Hovered => {
-                input_focus.set(entity);
-                //*border_color = BorderColor::all(YELLOW);
-            }
-
-            Interaction::None => {
-                input_focus.clear();
-                //*border_color = BorderColor::all(RED);
-            }
-        }
-    }
-}
-
-fn settings_button_dissapear (
-    state: Res<GameState>,
-    mut query: Query<&mut Visibility, With<SettingsButton>>, 
-) {
-    for mut visibility in &mut query {
-        *visibility = if state.state == GameStateResource::InGame {
-            Visibility::Hidden
-        } else {
-            Visibility::Visible
-        }
-    }
-}
 
 fn start_button_system (
     mut input_focus: ResMut<InputFocus>,
@@ -254,32 +274,6 @@ fn start_button_system (
                 input_focus.clear();
             }
         }
-    }
-}
-
-fn update_settings_menu (
-    menu: Res<MenuState>,
-    mut panel_query: Query<&mut Visibility, With<SettingsPanel>>,
-) {
-    for mut visibility in &mut panel_query {
-        *visibility = if menu.current_menu == Menu::Settings {
-            Visibility::Visible
-        } else {
-            Visibility::Hidden
-        };
-    }
-    
-}
-
-fn settings_menu_keybind (
-    input: Res<ButtonInput<KeyCode>>,
-    mut menu: ResMut<MenuState>,
-    gamestate: Res<GameState>,
-) {
-    if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::Settings {
-        menu.current_menu = Menu::None;
-    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::None&&gamestate.state == GameStateResource::InGame {
-        menu.current_menu = Menu::Settings;
     }
 }
 
@@ -330,6 +324,116 @@ fn update_title_background (
         }
     }
 }//holy shit cursed as fuck logic but it works
+
+fn credits_button_system (
+    mut input_focus: ResMut<InputFocus>,
+    mut state: ResMut<CreditsState>,
+    mut interaction_query: Query<(Entity, &Interaction, &Button, &CreditsButton,), Changed<Interaction>>,
+) {
+    for (entity, interaction, &Button, &CreditsButton) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                input_focus.set(entity);
+                state.state = match state.state {
+                    CreditsResource::Hidden => CreditsResource::Shown,
+                    CreditsResource::Shown => CreditsResource::Hidden, //yes very copy paste ikik
+                };
+            }
+
+            Interaction::Hovered => {
+                input_focus.set(entity);
+            }
+
+            Interaction::None => {
+                input_focus.clear();
+            }
+        }
+    }
+}
+
+fn update_credits_menu (
+    state: Res<CreditsState>,
+    mut panel_query: Query<&mut Visibility, With<CreditsWindow>>,
+) {
+    for mut visibility in &mut panel_query {
+        *visibility = if state.state == CreditsResource::Shown {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+    
+}
+
+fn settings_button_system (
+    mut input_focus: ResMut<InputFocus>,
+    mut state: ResMut<MenuState>,
+    mut interaction_query: Query<(Entity, &Interaction, /* &mut BorderColor,*/ &Button, &SettingsButton), Changed<Interaction>>,
+) {
+    for (entity, interaction, /*mut border_color,*/ &Button, &SettingsButton) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                input_focus.set(entity);
+                //*border_color = BorderColor::all(GREEN);
+                state.current_menu = match state.current_menu {
+                Menu::None => Menu::Settings,
+                Menu::Settings => Menu::None, //settings overlay toggle
+                };
+            }
+
+            Interaction::Hovered => {
+                input_focus.set(entity);
+                //*border_color = BorderColor::all(YELLOW);
+            }
+
+            Interaction::None => {
+                input_focus.clear();
+                //*border_color = BorderColor::all(RED);
+            }
+        }
+    }
+}
+
+
+
+fn update_settings_menu (
+    menu: Res<MenuState>,
+    mut panel_query: Query<&mut Visibility, With<SettingsPanel>>,
+) {
+    for mut visibility in &mut panel_query {
+        *visibility = if menu.current_menu == Menu::Settings {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+    
+}
+
+fn settings_menu_keybind (
+    input: Res<ButtonInput<KeyCode>>,
+    mut menu: ResMut<MenuState>,
+    gamestate: Res<GameState>,
+) {
+    if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::Settings {
+        menu.current_menu = Menu::None;
+    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == Menu::None&&gamestate.state == GameStateResource::InGame {
+        menu.current_menu = Menu::Settings;
+    }
+}
+
+fn button_dissapear (
+    state: Res<GameState>,
+    mut query: Query<&mut Visibility, With<MenuButton>>, 
+) {
+    for mut visibility in &mut query {
+        *visibility = if state.state == GameStateResource::InGame {
+            Visibility::Hidden
+        } else {
+            Visibility::Visible
+        }
+    }
+}
 
 #[derive(Default, PartialEq)]
 enum Menu {
@@ -389,4 +493,22 @@ struct GameState {
 
 #[derive(Component)]
 struct CreditsButton;
+
+#[derive(Resource, Default)]
+struct CreditsState {
+    state: CreditsResource,
+}
+
+#[derive(Resource, Default, PartialEq)]
+enum CreditsResource {
+    #[default]
+    Hidden,
+    Shown,
+}
+
+#[derive(Component)]
+struct CreditsWindow;
+
+#[derive(Component)]
+struct MenuButton;
 //my linter blew up because of unused code
