@@ -1,7 +1,7 @@
 use bevy::{
     color::palettes::css::BLACK, prelude::*, window::{Window, WindowMode}
 };
-use crate::components;
+use crate::derive;
 
 //setup func is for setting up title screen, everything else can move after
 
@@ -24,7 +24,7 @@ pub fn setup(
     commands.spawn((
         //camera
         Camera2d,
-        components::WorldCamera,
+        derive::WorldCamera,
         Camera {
             //This camera is for everything now
             order: 0,
@@ -46,7 +46,7 @@ pub fn setup(
 
         children![
             (
-                components::TitleBackgroundImage,
+                derive::TitleBackgroundImage,
                 ZIndex(0), //all background images will spawn on 0
                 ImageNode {
                     image: asset_server.load("TitleScreen/Library_Soft.png"),
@@ -62,8 +62,8 @@ pub fn setup(
 
             (
                 Button,
-                components::SettingsButton,
-                components::MenuButton,
+                derive::SettingsButton,
+                derive::MenuButton,
                 ZIndex(5), //simple ui button, but the sprites will render on 3 or something
                 Visibility::Visible,
                 Node {
@@ -88,8 +88,8 @@ pub fn setup(
 
             (//start button
                 Button,
-                components::MenuButton,
-                components::StartButton,
+                derive::MenuButton,
+                derive::StartButton,
                 Visibility::Visible,
                 ZIndex(5),
                 Node {
@@ -114,8 +114,8 @@ pub fn setup(
 
             (
                 Button,
-                components::MenuButton,
-                components::CreditsButton,
+                derive::MenuButton,
+                derive::CreditsButton,
                 Visibility::Visible,
                 ZIndex(5),
                 Node{
@@ -142,7 +142,7 @@ pub fn setup(
     ));
     //settings OVERLAY
     commands.spawn((
-        components::SettingsPanel,
+        derive::SettingsPanel,
         ZIndex(99), //must overlay everything
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.8)),
         Visibility::Hidden,
@@ -171,7 +171,7 @@ pub fn setup(
     ));
     //ik i can make this more efficent but my lazy ass aint gonna do that rn
     commands.spawn((
-        components::CreditsWindow,
+        derive::CreditsWindow,
         ZIndex(99),
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.9)),
         Visibility::Hidden,
@@ -223,8 +223,8 @@ pub fn setup(
 
         ],
     ));
-    commands.insert_resource(components::TitleScreenState {
-        state: components::TitleScreenSwap::BaseLibrary,
+    commands.insert_resource(derive::TitleScreenState {
+        state: derive::TitleScreenSwap::BaseLibrary,
         timer: Timer::from_seconds(4.95, TimerMode::Once),
     });
 }

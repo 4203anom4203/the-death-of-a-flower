@@ -9,7 +9,7 @@ pub enum Menu {
     Settings,
     //can add shit
 }
-//resources
+
 #[derive(Resource, Default)]
 pub struct MenuState {
     pub current_menu: Menu,

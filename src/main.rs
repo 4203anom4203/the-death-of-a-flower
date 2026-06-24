@@ -3,7 +3,7 @@ use bevy::{
 };
 use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 mod setup;
-mod components;
+mod derive;
 mod systems;
 fn main() -> AppExit {
     App::new()
@@ -14,9 +14,9 @@ fn main() -> AppExit {
             DefaultPlugins,
         ))
         .init_resource::<InputFocus>()
-        .init_resource::<components::MenuState>()
-        .init_resource::<components::GameState>()
-        .init_resource::<components::CreditsState>()
+        .init_resource::<derive::MenuState>()
+        .init_resource::<derive::GameState>()
+        .init_resource::<derive::CreditsState>()
         .add_systems(Startup, setup::setup)
         .add_systems(Update, systems::settings_button_system)
         .add_systems(Update, systems::update_settings_menu)
