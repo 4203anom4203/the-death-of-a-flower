@@ -29,5 +29,5 @@ fn main() -> AppExit {
         .run()
 }
 
-
+//whenever i set a system to update, it will run each frame, thats going to fuck over some lower end computers, so i shall make as little as possible, theres like 7 alreadly :(
 

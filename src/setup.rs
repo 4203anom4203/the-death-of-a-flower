@@ -1,12 +1,12 @@
 use bevy::{
-    color::palettes::css::BLACK, prelude::*, window::{Window, WindowMode}
+    color::palettes::css::{BLACK}, prelude::*, window::{Window, WindowMode}
 };
 use crate::derive;
 
 //setup func is for setting up title screen, everything else can move after
 
 pub const PURPLE: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
-
+static VOICE_VOLUME: u32 = 100;
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -47,6 +47,7 @@ pub fn setup(
         children![
             (
                 derive::TitleBackgroundImage,
+                BackgroundColor(Color::WHITE),
                 ZIndex(0), //all background images will spawn on 0
                 ImageNode {
                     image: asset_server.load("TitleScreen/Library_Soft.png"),
@@ -160,12 +161,61 @@ pub fn setup(
                 Node {
                     width: Val::Percent(30.0),
                     height: Val::Percent(60.0),
-                    border: UiRect::all(Val::Px(12.0)),
-                    border_radius: BorderRadius::all(Val::Px(12.0)),
+                    border: UiRect::all(Val::Px(8.0)),
+                    border_radius: BorderRadius::all(Val::Px(8.0)),
                     ..default()
                 },
                 BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
                 BorderColor::all(PURPLE),
+            ),
+
+            (
+                //voice volume
+                ZIndex(101),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(75.0),
+                    height: Val::Percent(10.0),
+                    top: Val::Percent(25.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                children![
+                    (
+                        Text::new(VOICE_VOLUME.to_string()),
+                        TextFont {
+                            font: asset_server.load("fonts/NotoSans.ttf"),
+                            font_size: 60.0,
+                            ..default()
+                        },
+                    ),
+                ]
+
+            ),
+
+            (
+                //sfx volume
+            ),
+
+            (
+                //music volume
+            ),
+
+            (
+                //settings header
+            ),
+
+            (
+                //save game
+            ),
+
+            (
+                //load save (second button, but its just simpler)
+            ),
+
+            (
+                //hard reset, (add confirmation)
             ),
         ],
     ));
@@ -207,7 +257,7 @@ pub fn setup(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-
+                //second bounding box for text, so it doesn't spill out as much
                 children![
                     (
                         Text::new("Art: Chibi|Neko and Rimi \nStory: Chibi|Neko and Rimi \nCoding: Anøm \nMusic: SgtSlippery"),
