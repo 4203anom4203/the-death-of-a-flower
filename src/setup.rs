@@ -1,5 +1,5 @@
 use bevy::{
-    color::palettes::css::{BLACK}, prelude::*, window::{Window, WindowMode}
+    color::palettes::css::BLACK, input_focus::AutoFocus, prelude::*, window::{Window, WindowMode}, 
 };
 use crate::derive;
 
@@ -63,6 +63,7 @@ pub fn setup(
 
             (
                 Button,
+                AutoFocus,
                 derive::SettingsButton,
                 derive::MenuButton,
                 ZIndex(5), //simple ui button, but the sprites will render on 3 or something
@@ -70,7 +71,7 @@ pub fn setup(
                 Node {
                     position_type: PositionType::Absolute,
                     height: Val::Percent(10.0),
-                    width: Val::Percent(20.0),
+                    width: Val::Percent(17.5),
                     left: Val::Percent(10.0),
                     top: Val::Percent(30.0),
                     ..default()
@@ -79,8 +80,8 @@ pub fn setup(
                 children![(
                     Text::new("Settings"),
                     TextFont {
-                        font: asset_server.load("fonts/NotoSans.ttf"),
-                        font_size: 80.0,
+                        font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                        font_size: bevy::prelude::FontSize::Px(80.0),
                         ..default()
                     },
                     TextColor(Color::WHITE),
@@ -89,6 +90,7 @@ pub fn setup(
 
             (//start button
                 Button,
+                AutoFocus,
                 derive::MenuButton,
                 derive::StartButton,
                 Visibility::Visible,
@@ -105,8 +107,8 @@ pub fn setup(
                 children![(
                     Text::new("Start"),
                     TextFont {
-                        font: asset_server.load("fonts/NotoSans.ttf"),
-                        font_size: 80.0,
+                        font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                        font_size: bevy::prelude::FontSize::Px(80.0),
                         ..default()
                     },
                     TextColor(Color::WHITE),
@@ -115,6 +117,7 @@ pub fn setup(
 
             (
                 Button,
+                AutoFocus,
                 derive::MenuButton,
                 derive::CreditsButton,
                 Visibility::Visible,
@@ -122,7 +125,7 @@ pub fn setup(
                 Node{
                     position_type: PositionType::Absolute,
                     height:Val::Percent(10.0),
-                    width: Val::Percent(10.0),
+                    width: Val::Percent(12.5),
                     left: Val::Percent(10.0),
                     top: Val::Percent(40.0),
                     ..default()
@@ -131,8 +134,8 @@ pub fn setup(
                 children![(
                     Text::new("Credits"),
                     TextFont { 
-                        font: asset_server.load("fonts/NotoSans.ttf"),
-                        font_size: 80.0,
+                        font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                        font_size: bevy::prelude::FontSize::Px(80.0),
                         ..default()
                     },
 
@@ -185,8 +188,8 @@ pub fn setup(
                     (
                         Text::new(VOICE_VOLUME.to_string()),
                         TextFont {
-                            font: asset_server.load("fonts/NotoSans.ttf"),
-                            font_size: 60.0,
+                            font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                            font_size: bevy::prelude::FontSize::Px(60.0),
                             ..default()
                         },
                     ),
@@ -262,8 +265,8 @@ pub fn setup(
                     (
                         Text::new("Art: Chibi|Neko and Rimi \nStory: Chibi|Neko and Rimi \nCoding: Anøm \nMusic: SgtSlippery"),
                         TextFont { 
-                            font: asset_server.load("fonts/NotoSans.ttf"),
-                            font_size: 30.0,
+                            font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                            font_size: bevy::prelude::FontSize::Px(30.0),
                             ..default()
                         },
                         TextColor(Color::WHITE),

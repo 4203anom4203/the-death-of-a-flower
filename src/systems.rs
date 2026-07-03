@@ -1,27 +1,24 @@
-use bevy::{
-    input_focus::InputFocus, prelude::*
-};
+use bevy::prelude::*;
 use crate::derive;
 pub fn start_button_system (
-    mut input_focus: ResMut<InputFocus>,
     mut state: ResMut<derive::GameState>,
-    mut interaction_query: Query<(Entity, &Button, &derive::StartButton, &mut Visibility, &Interaction), Changed<Interaction>>,
+    mut interaction_query: Query<(&Button, &derive::StartButton, &mut Visibility, &Interaction), Changed<Interaction>>,
 ) {
-    for (entity, _startbutton, _button, mut visibility, interaction) in &mut interaction_query {
+    for (_startbutton, _button, mut visibility, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                input_focus.set(entity);
+                
                 state.state = derive::GameStateResource::InGame;
                 *visibility = Visibility::Hidden;
                 
             }
             
             Interaction::Hovered => {
-                input_focus.set(entity);
+                
             }
 
             Interaction::None => {
-                input_focus.clear();
+                
             }
         }
     }
@@ -78,14 +75,12 @@ pub fn update_title_background (
 }//holy shit cursed as fuck logic but it works
 
 pub fn credits_button_system (
-    mut input_focus: ResMut<InputFocus>,
     mut state: ResMut<derive::MenuState>,
-    mut interaction_query: Query<(Entity, &Interaction, &Button, &derive::CreditsButton,), Changed<Interaction>>,
+    mut interaction_query: Query<(&Interaction, &Button, &derive::CreditsButton,), Changed<Interaction>>,
 ) {
-    for (entity, interaction, &Button, &derive::CreditsButton) in &mut interaction_query {
+    for (interaction, &Button, &derive::CreditsButton) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                input_focus.set(entity);
                 state.current_menu = match state.current_menu {
                     derive::Menu::None => derive::Menu::Credits,
                     derive::Menu::Credits => derive::Menu::None, //yes very copy paste ikik
@@ -94,11 +89,9 @@ pub fn credits_button_system (
             }
 
             Interaction::Hovered => {
-                input_focus.set(entity);
             }
 
             Interaction::None => {
-                input_focus.clear();
             }
         }
     }
@@ -119,14 +112,12 @@ pub fn update_credits_menu (
 }
 
 pub fn settings_button_system (
-    mut input_focus: ResMut<InputFocus>,
     mut state: ResMut<derive::MenuState>,
-    mut interaction_query: Query<(Entity, &Interaction, /* &mut BorderColor,*/ &Button, &derive::SettingsButton), Changed<Interaction>>,
+    mut interaction_query: Query<(&Interaction, /* &mut BorderColor,*/ &Button, &derive::SettingsButton), Changed<Interaction>>,
 ) {
-    for (entity, interaction, /*mut border_color,*/ &Button, &derive::SettingsButton) in &mut interaction_query {
+    for (interaction, /*mut border_color,*/ &Button, &derive::SettingsButton) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                input_focus.set(entity);
                 //*border_color = BorderColor::all(GREEN);
                 state.current_menu = match state.current_menu {
                 derive::Menu::None => derive::Menu::Settings,
@@ -136,12 +127,10 @@ pub fn settings_button_system (
             }
 
             Interaction::Hovered => {
-                input_focus.set(entity);
                 //*border_color = BorderColor::all(YELLOW);
             }
 
             Interaction::None => {
-                input_focus.clear();
                 //*border_color = BorderColor::all(RED);
             }
         }
