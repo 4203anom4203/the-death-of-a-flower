@@ -79,16 +79,17 @@ pub fn update_title_background (
 
 pub fn credits_button_system (
     mut input_focus: ResMut<InputFocus>,
-    mut state: ResMut<derive::CreditsState>,
+    mut state: ResMut<derive::MenuState>,
     mut interaction_query: Query<(Entity, &Interaction, &Button, &derive::CreditsButton,), Changed<Interaction>>,
 ) {
     for (entity, interaction, &Button, &derive::CreditsButton) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 input_focus.set(entity);
-                state.state = match state.state {
-                    derive::CreditsResource::Hidden => derive::CreditsResource::Shown,
-                    derive::CreditsResource::Shown => derive::CreditsResource::Hidden, //yes very copy paste ikik
+                state.current_menu = match state.current_menu {
+                    derive::Menu::None => derive::Menu::Credits,
+                    derive::Menu::Credits => derive::Menu::None, //yes very copy paste ikik
+                    derive::Menu::Settings => derive::Menu::Settings, //disables settings button in credits menu
                 };
             }
 
@@ -104,11 +105,11 @@ pub fn credits_button_system (
 }
 
 pub fn update_credits_menu (
-    state: Res<derive::CreditsState>,
+    state: Res<derive::MenuState>,
     mut panel_query: Query<&mut Visibility, With<derive::CreditsWindow>>,
 ) {
     for mut visibility in &mut panel_query {
-        *visibility = if state.state == derive::CreditsResource::Shown {
+        *visibility = if state.current_menu == derive::Menu::Credits {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -130,6 +131,7 @@ pub fn settings_button_system (
                 state.current_menu = match state.current_menu {
                 derive::Menu::None => derive::Menu::Settings,
                 derive::Menu::Settings => derive::Menu::None, //settings overlay toggle
+                derive::Menu::Credits => derive::Menu::Credits, //disable settings button inside of credits menu
                 };
             }
 
@@ -162,18 +164,18 @@ pub fn update_settings_menu (
     
 }
 
-pub fn settings_menu_keybind (
+pub fn exit_menu_keybind (
     input: Res<ButtonInput<KeyCode>>,
     mut menu: ResMut<derive::MenuState>,
     gamestate: Res<derive::GameState>,
 ) {
-    if input.just_pressed(KeyCode::Escape)&&menu.current_menu == derive::Menu::Settings {
-        menu.current_menu = derive::Menu::None;
+    if input.just_pressed(KeyCode::Escape)&& (menu.current_menu == derive::Menu::Settings || menu.current_menu == derive::Menu::Credits) {
+        menu.current_menu = derive::Menu::None; //this logic hurts my soul
     } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == derive::Menu::None&&gamestate.state == derive::GameStateResource::InGame {
         menu.current_menu = derive::Menu::Settings;
     }
 }
-
+//handles closing menus with esc, making settings toggle ingame
 pub fn button_dissapear (
     state: Res<derive::GameState>,
     mut query: Query<&mut Visibility, With<derive::MenuButton>>, 

@@ -7,6 +7,7 @@ pub enum Menu {
     #[default]
     None,
     Settings,
+    Credits,
     //can add shit
 }
 
@@ -15,12 +16,6 @@ pub struct MenuState {
     pub current_menu: Menu,
 }
 
-//components
-#[derive(Component)]
-pub struct SettingsButton;
-
-#[derive(Component)]
-pub struct SettingsPanel;
 
 #[derive(Resource, Default)]
 pub enum TitleScreenSwap {
@@ -37,15 +32,6 @@ pub struct TitleScreenState {
     pub timer: Timer,
 }
 
-#[derive(Component)]
-pub struct WorldCamera;
-
-#[derive(Component)]
-pub struct TitleBackgroundImage;
-
-#[derive(Component)]
-pub struct StartButton;
-
 #[derive(Resource, Default, PartialEq)]
 pub enum GameStateResource {
     #[default]
@@ -57,21 +43,19 @@ pub enum GameStateResource {
 pub struct GameState {
     pub state: GameStateResource
 }
+//components
 
 #[derive(Component)]
 pub struct CreditsButton;
 
-#[derive(Resource, Default)]
-pub struct CreditsState {
-    pub state: CreditsResource,
-}
+#[derive(Component)]
+pub struct SettingsButton;
 
-#[derive(Resource, Default, PartialEq)]
-pub enum CreditsResource {
-    #[default]
-    Hidden,
-    Shown,
-}
+#[derive(Component)]
+pub struct SettingsPanel;
+
+#[derive(Component)]
+pub struct StartButton;
 
 #[derive(Component)]
 pub struct CreditsWindow;
@@ -79,5 +63,9 @@ pub struct CreditsWindow;
 #[derive(Component)]
 pub struct MenuButton;
 
+#[derive(Component)]
+pub struct WorldCamera;
 
+#[derive(Component)]
+pub struct TitleBackgroundImage;
 //my linter blew up because of unused code
