@@ -1,14 +1,13 @@
-use bevy::prelude::*;
-use crate::derive;
+use bevy::{ecs::relationship::Relationship, prelude::*, ui_widgets::{SliderRange, SliderThumb, SliderValue}};
+use crate::{types, setup};
 pub fn start_button_system (
-    mut state: ResMut<derive::GameState>,
-    mut interaction_query: Query<(&Button, &derive::StartButton, &mut Visibility, &Interaction), Changed<Interaction>>,
+    mut state: ResMut<types::GameState>,
+    mut interaction_query: Query<(&Button, &types::StartButton, &mut Visibility, &Interaction), Changed<Interaction>>,
 ) {
     for (_startbutton, _button, mut visibility, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                
-                state.state = derive::GameStateResource::InGame;
+                state.state = types::GameStateResource::InGame;
                 *visibility = Visibility::Hidden;
                 
             }
@@ -27,47 +26,47 @@ pub fn start_button_system (
 
 
 pub fn update_title_background (
-    mut titlescreen: ResMut<derive::TitleScreenState>,
+    mut titlescreen: ResMut<types::TitleScreenState>,
     time: Res<Time>,
-    gamestate: Res<derive::GameState>,
+    gamestate: Res<types::GameState>,
     asset_server: Res<AssetServer>,
-    mut query: Query<&mut ImageNode, With<derive::TitleBackgroundImage>>
+    mut query: Query<&mut ImageNode, With<types::TitleBackgroundImage>>
 ) {
     titlescreen.timer.tick(time.delta());
 
-    if titlescreen.timer.just_finished() && gamestate.state == derive::GameStateResource::StartMenu {
+    if titlescreen.timer.just_finished() && gamestate.state == types::GameStateResource::StartMenu {
         for mut image_node in &mut query {
             match titlescreen.state {
 
-                derive::TitleScreenSwap::Transition1 => {
+                types::TitleScreenSwap::Transition1 => {
                     image_node.image = asset_server.load("TitleScreen/Glitch_Frame.png");
                     titlescreen.timer = Timer::from_seconds(0.05, TimerMode::Once);
-                    titlescreen.state = derive::TitleScreenSwap::BaseLibrary;
+                    titlescreen.state = types::TitleScreenSwap::BaseLibrary;
                 }
-                derive::TitleScreenSwap::BaseLibrary => {
+                types::TitleScreenSwap::BaseLibrary => {
                     image_node.image = asset_server.load("TitleScreen/Library_Soft.png");
                     titlescreen.timer = Timer::from_seconds(4.95, TimerMode::Once);
-                    titlescreen.state = derive::TitleScreenSwap::Transition2;
+                    titlescreen.state = types::TitleScreenSwap::Transition2;
                     
                 }
 
-                derive::TitleScreenSwap::Transition2 => {
+                types::TitleScreenSwap::Transition2 => {
                     image_node.image = asset_server.load("TitleScreen/Glitch_Frame.png");
                     titlescreen.timer = Timer::from_seconds(0.05, TimerMode::Once);
-                    titlescreen.state = derive::TitleScreenSwap::DecayLibrary;
+                    titlescreen.state = types::TitleScreenSwap::DecayLibrary;
                 }
 
-                derive::TitleScreenSwap::DecayLibrary => {
+                types::TitleScreenSwap::DecayLibrary => {
                     image_node.image = asset_server.load("TitleScreen/Decay_Library_Tint.png");
                     titlescreen.timer = Timer::from_seconds(4.95, TimerMode::Once);
-                    titlescreen.state = derive::TitleScreenSwap::Transition1;
+                    titlescreen.state = types::TitleScreenSwap::Transition1;
                 }
 
                 
             }
 
         }
-    } else if !titlescreen.timer.just_finished() && gamestate.state == derive::GameStateResource::InGame {
+    } else if !titlescreen.timer.just_finished() && gamestate.state == types::GameStateResource::InGame {
         for mut image_node in &mut query {
             image_node.image = asset_server.load("blank-background.png");
         }
@@ -75,16 +74,16 @@ pub fn update_title_background (
 }//holy shit cursed as fuck logic but it works
 
 pub fn credits_button_system (
-    mut state: ResMut<derive::MenuState>,
-    mut interaction_query: Query<(&Interaction, &Button, &derive::CreditsButton,), Changed<Interaction>>,
+    mut state: ResMut<types::MenuState>,
+    mut interaction_query: Query<(&Interaction, &Button, &types::CreditsButton,), Changed<Interaction>>,
 ) {
-    for (interaction, &Button, &derive::CreditsButton) in &mut interaction_query {
+    for (interaction, &Button, &types::CreditsButton) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 state.current_menu = match state.current_menu {
-                    derive::Menu::None => derive::Menu::Credits,
-                    derive::Menu::Credits => derive::Menu::None, //yes very copy paste ikik
-                    derive::Menu::Settings => derive::Menu::Settings, //disables settings button in credits menu
+                    types::Menu::None => types::Menu::Credits,
+                    types::Menu::Credits => types::Menu::None, //yes very copy paste ikik
+                    types::Menu::Settings => types::Menu::Settings, //disables settings button in credits menu
                 };
             }
 
@@ -98,11 +97,11 @@ pub fn credits_button_system (
 }
 
 pub fn update_credits_menu (
-    state: Res<derive::MenuState>,
-    mut panel_query: Query<&mut Visibility, With<derive::CreditsWindow>>,
+    state: Res<types::MenuState>,
+    mut panel_query: Query<&mut Visibility, With<types::CreditsWindow>>,
 ) {
     for mut visibility in &mut panel_query {
-        *visibility = if state.current_menu == derive::Menu::Credits {
+        *visibility = if state.current_menu == types::Menu::Credits {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -112,17 +111,17 @@ pub fn update_credits_menu (
 }
 
 pub fn settings_button_system (
-    mut state: ResMut<derive::MenuState>,
-    mut interaction_query: Query<(&Interaction, /* &mut BorderColor,*/ &Button, &derive::SettingsButton), Changed<Interaction>>,
+    mut state: ResMut<types::MenuState>,
+    mut interaction_query: Query<(&Interaction, /* &mut BorderColor,*/ &Button, &types::SettingsButton), Changed<Interaction>>,
 ) {
-    for (interaction, /*mut border_color,*/ &Button, &derive::SettingsButton) in &mut interaction_query {
+    for (interaction, /*mut border_color,*/ &Button, &types::SettingsButton) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 //*border_color = BorderColor::all(GREEN);
                 state.current_menu = match state.current_menu {
-                derive::Menu::None => derive::Menu::Settings,
-                derive::Menu::Settings => derive::Menu::None, //settings overlay toggle
-                derive::Menu::Credits => derive::Menu::Credits, //disable settings button inside of credits menu
+                types::Menu::None => types::Menu::Settings,
+                types::Menu::Settings => types::Menu::None, //settings overlay toggle
+                types::Menu::Credits => types::Menu::Credits, //disable settings button inside of credits menu
                 };
             }
 
@@ -140,11 +139,11 @@ pub fn settings_button_system (
 
 
 pub fn update_settings_menu (
-    menu: Res<derive::MenuState>,
-    mut panel_query: Query<&mut Visibility, With<derive::SettingsPanel>>,
+    menu: Res<types::MenuState>,
+    mut panel_query: Query<&mut Visibility, With<types::SettingsPanel>>,
 ) {
     for mut visibility in &mut panel_query {
-        *visibility = if menu.current_menu == derive::Menu::Settings {
+        *visibility = if menu.current_menu == types::Menu::Settings {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -155,26 +154,62 @@ pub fn update_settings_menu (
 
 pub fn exit_menu_keybind (
     input: Res<ButtonInput<KeyCode>>,
-    mut menu: ResMut<derive::MenuState>,
-    gamestate: Res<derive::GameState>,
+    mut menu: ResMut<types::MenuState>,
+    gamestate: Res<types::GameState>,
 ) {
-    if input.just_pressed(KeyCode::Escape)&& (menu.current_menu == derive::Menu::Settings || menu.current_menu == derive::Menu::Credits) {
-        menu.current_menu = derive::Menu::None; //this logic hurts my soul
-    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == derive::Menu::None&&gamestate.state == derive::GameStateResource::InGame {
-        menu.current_menu = derive::Menu::Settings;
+    if input.just_pressed(KeyCode::Escape)&& (menu.current_menu == types::Menu::Settings || menu.current_menu == types::Menu::Credits) {
+        menu.current_menu = types::Menu::None; //this logic hurts my soul
+    } else if input.just_pressed(KeyCode::Escape)&&menu.current_menu == types::Menu::None&&gamestate.state == types::GameStateResource::InGame {
+        menu.current_menu = types::Menu::Settings;
     }
 }
 //handles closing menus with esc, making settings toggle ingame
 pub fn button_dissapear (
-    state: Res<derive::GameState>,
-    mut query: Query<&mut Visibility, With<derive::MenuButton>>, 
+    state: Res<types::GameState>,
+    mut query: Query<&mut Visibility, With<types::MenuButton>>, 
 ) {
     for mut visibility in &mut query {
-        *visibility = if state.state == derive::GameStateResource::InGame {
+        *visibility = if state.state == types::GameStateResource::InGame {
             Visibility::Hidden
         } else {
             Visibility::Visible
         }
     }
 }
+//slider internals already handled
+pub fn update_sliders (
+    thumb: Query<(&mut Node, &ChildOf), With<SliderThumb>>,
+    track: Query<&ChildOf, Without<SliderThumb>>,
+    slider: Query<(&SliderValue, &SliderRange), Changed<SliderValue>>,
+) {
+    for (mut thumb_node, thumb_parent) in thumb {
+        if let Ok(track_parent) = track.get(thumb_parent.get()) {
+            if let Ok((slider_value, _slider_range)) = slider.get(track_parent.get()) {
+                let value = (slider_value.0 - setup::SLIDER_MIN) / (setup::SLIDER_MAX - setup::SLIDER_MIN);
+                let percent = value.clamp(0.0, 1.0) * 100.0 - 3.0;
+                thumb_node.left = Val::Percent(percent);
+            }
+        }
+        
+    }
+}
 
+pub fn update_volume (
+    slider: Query<(&SliderValue, &types::AudioSettingsComponent), Changed<SliderValue>>,
+    mut audio: ResMut<types::AudioSettings>,
+) {
+        for (slider_value, binding) in &slider {
+            match binding {
+                types::AudioSettingsComponent::Voice => {
+                    audio.voice_volume = slider_value.0;
+                }
+                types::AudioSettingsComponent::Sfx => {
+                    audio.sfx_volume = slider_value.0;
+                }
+                types::AudioSettingsComponent::Music => {
+                    audio.music_volume = slider_value.0;
+                }
+
+            }
+        }
+}

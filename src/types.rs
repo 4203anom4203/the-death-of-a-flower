@@ -43,6 +43,20 @@ pub enum GameStateResource {
 pub struct GameState {
     pub state: GameStateResource
 }
+
+#[derive(Resource, Default)]
+pub struct AudioSettings {
+    pub voice_volume: f32,
+    pub sfx_volume: f32,
+    pub music_volume: f32,
+}
+
+#[derive(Component, Debug, Clone, Copy)]
+pub enum AudioSettingsComponent {
+    Voice,
+    Sfx,
+    Music,
+}
 //components
 
 #[derive(Component)]

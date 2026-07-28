@@ -1,22 +1,26 @@
+
 use bevy::{
-    color::palettes::css::BLACK, input_focus::AutoFocus, prelude::*, window::{Window, WindowMode}, 
+    color::palettes::css::WHITE, input_focus::AutoFocus, prelude::*, sprite::Anchor, ui_widgets::{Slider, SliderOrientation::Horizontal, SliderPrecision, SliderRange, SliderThumb, SliderValue, TrackClick::Snap, observe, slider_self_update,}, window::{Window, WindowMode},
 };
-use crate::derive;
+use crate::types::{self, AudioSettings};
 
 //setup func is for setting up title screen, everything else can move after
 
 pub const PURPLE: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
-static VOICE_VOLUME: u32 = 100;
+pub const SLIDER_MIN: f32 = 0.0;
+pub const SLIDER_MAX: f32 = 1.0;
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut window: Single<&mut Window>,
+    audio_settings: Res<AudioSettings>,
 ) {
     //higher render layer = on top :)
     //TODO: Make the background go blank with the thingy
     /////// if statement on the titlescreenswap.
     //TODO: settings buttons in menup
     //TODO: SAVE FILES
+
     window.mode = WindowMode::BorderlessFullscreen(
         MonitorSelection::Primary,
     );
@@ -24,11 +28,11 @@ pub fn setup(
     commands.spawn((
         //camera
         Camera2d,
-        derive::WorldCamera,
+        types::WorldCamera,
         Camera {
             //This camera is for everything now
             order: 0,
-            clear_color: ClearColorConfig::Custom(Color::Srgba(BLACK)),
+            clear_color: ClearColorConfig::Custom(Color::Srgba(WHITE)),
             //cursed as hell syntax
             ..default()
         },
@@ -46,7 +50,7 @@ pub fn setup(
 
         children![
             (
-                derive::TitleBackgroundImage,
+                types::TitleBackgroundImage,
                 BackgroundColor(Color::WHITE),
                 ZIndex(0), //all background images will spawn on 0
                 ImageNode {
@@ -64,8 +68,8 @@ pub fn setup(
             (
                 Button,
                 AutoFocus,
-                derive::SettingsButton,
-                derive::MenuButton,
+                types::SettingsButton,
+                types::MenuButton,
                 ZIndex(5), //simple ui button, but the sprites will render on 3 or something
                 Visibility::Visible,
                 Node {
@@ -91,8 +95,8 @@ pub fn setup(
             (//start button
                 Button,
                 AutoFocus,
-                derive::MenuButton,
-                derive::StartButton,
+                types::MenuButton,
+                types::StartButton,
                 Visibility::Visible,
                 ZIndex(5),
                 Node {
@@ -118,8 +122,8 @@ pub fn setup(
             (
                 Button,
                 AutoFocus,
-                derive::MenuButton,
-                derive::CreditsButton,
+                types::MenuButton,
+                types::CreditsButton,
                 Visibility::Visible,
                 ZIndex(5),
                 Node{
@@ -146,11 +150,12 @@ pub fn setup(
     ));
     //settings OVERLAY
     commands.spawn((
-        derive::SettingsPanel,
+        types::SettingsPanel,
         ZIndex(99), //must overlay everything
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.8)),
         Visibility::Hidden,
         Node {
+            position_type: PositionType::Absolute,
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
             justify_content: JustifyContent::Center,
@@ -162,7 +167,8 @@ pub fn setup(
             (
                 ZIndex(100), //overlays the actual overlay
                 Node {
-                    width: Val::Percent(30.0),
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(60.0),
                     height: Val::Percent(60.0),
                     border: UiRect::all(Val::Px(8.0)),
                     border_radius: BorderRadius::all(Val::Px(8.0)),
@@ -177,24 +183,83 @@ pub fn setup(
                 ZIndex(101),
                 Node {
                     position_type: PositionType::Absolute,
-                    width: Val::Percent(75.0),
+                    width: Val::Percent(20.0),
                     height: Val::Percent(10.0),
-                    top: Val::Percent(25.0),
+                    top: Val::Percent(20.0),
+                    left: Val::Percent(10.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
                 children![
                     (
-                        Text::new(VOICE_VOLUME.to_string()),
+                        Text::new("Voice Volume: ".to_owned() + &(audio_settings.voice_volume*100.0).to_string() + "%"),
                         TextFont {
                             font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
-                            font_size: bevy::prelude::FontSize::Px(60.0),
+                            font_size: bevy::prelude::FontSize::Px(15.0),
                             ..default()
                         },
                     ),
                 ]
 
+            ),
+
+            (
+                ZIndex(101),
+                types::AudioSettingsComponent::Voice,
+                SliderValue(audio_settings.voice_volume),
+                SliderPrecision(2),
+                SliderRange::new(SLIDER_MIN, SLIDER_MAX),
+                Slider {
+                    track_click: Snap,
+                    orientation: Horizontal,
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    height: Val::Percent(2.0),
+                    width: Val::Percent(20.0),
+                    overflow: Overflow {x: OverflowAxis::Visible, y: OverflowAxis::Visible},
+                    ..default()
+                },
+                ImageNode {
+                    image: asset_server.load("SettingsMenu/Slider.png"),
+                    image_mode: NodeImageMode::Stretch,
+                    ..default()
+                },
+                observe(slider_self_update),
+
+                children![
+                    (
+                       Node {
+                        position_type: PositionType::Absolute,
+                        height: Val::Percent(100.0),
+                        width: Val::Percent(100.0),
+                        ..default()
+                       },
+
+                        children![
+                            (
+                                SliderThumb,
+                                ZIndex(103),
+                                Anchor::CENTER,
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    width: Val::Percent(10.0),
+                                    ..default()
+                                },
+                                ImageNode {
+                                    image: asset_server.load("SettingsMenu/SliderThumb.png"),
+
+                                    ..default()
+                                },
+                            )
+                        ]
+                    ),
+                ]
             ),
 
             (
@@ -224,7 +289,7 @@ pub fn setup(
     ));
     //ik i can make this more efficent but my lazy ass aint gonna do that rn
     commands.spawn((
-        derive::CreditsWindow,
+        types::CreditsWindow,
         ZIndex(99),
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.9)),
         Visibility::Hidden,
@@ -276,8 +341,8 @@ pub fn setup(
 
         ],
     ));
-    commands.insert_resource(derive::TitleScreenState {
-        state: derive::TitleScreenSwap::BaseLibrary,
+    commands.insert_resource(types::TitleScreenState {
+        state: types::TitleScreenSwap::BaseLibrary,
         timer: Timer::from_seconds(4.95, TimerMode::Once),
     });
 }
