@@ -219,7 +219,7 @@ pub fn setup(
                     (   
                         types::SettingsTextNode,
                         types::AudioSettingsComponent::Voice,
-                        Text::new("Voice Volume: ".to_owned() + &(audio_settings.voice_volume*100.0).to_string() + "%"),
+                        Text::new("Voice Volume: ".to_owned() + &(audio_settings.voice_volume).to_string() + "%"),
                         TextFont {
                             font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
                             font_size: bevy::prelude::FontSize::Px(15.0),
@@ -289,29 +289,183 @@ pub fn setup(
                     ),
                 ]
             ),
-
+            //sfx vol
             (
-                //sfx volume
+                ZIndex(101),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(10.0),
+                    height: Val::Percent(3.0),
+                    top: Val::Percent(40.0),
+                    left: Val::Percent(30.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                //BackgroundColor(Color::srgb(1.0, 1.0, 1.0)),
+                //for testing purposes
+                children![
+                    (   
+                        types::SettingsTextNode,
+                        types::AudioSettingsComponent::Sfx,
+                        Text::new("Sfx Volume: ".to_owned() + &(audio_settings.sfx_volume).to_string() + "%"),
+                        TextFont {
+                            font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                            font_size: bevy::prelude::FontSize::Px(15.0),
+                            ..default()
+                        },
+                    ),
+                ]
+
             ),
 
             (
-                //music volume
+                ZIndex(101),
+                types::AudioSettingsComponent::Sfx,
+                SliderValue(audio_settings.sfx_volume),
+                SliderPrecision(2),
+                SliderRange::new(SLIDER_MIN, SLIDER_MAX),
+                Slider {
+                    track_click: Snap,
+                    orientation: Horizontal,
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    top: Val::Percent(43.0),
+                    left: Val::Percent(25.0),
+                    height: Val::Percent(2.0),
+                    width: Val::Percent(20.0),
+                    overflow: Overflow {x: OverflowAxis::Visible, y: OverflowAxis::Visible},
+                    ..default()
+                },
+                ImageNode {
+                    image: asset_server.load("SettingsMenu/Slider.png"),
+                    image_mode: NodeImageMode::Stretch,
+                    ..default()
+                },
+                observe(slider_self_update),
+
+                children![
+                    (
+                       Node {
+                        position_type: PositionType::Absolute,
+                        height: Val::Percent(100.0),
+                        width: Val::Percent(100.0),
+                        ..default()
+                       },
+
+                        children![
+                            (
+                                SliderThumb,
+                                ZIndex(103),
+                                Anchor::CENTER,
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    width: Val::Percent(10.0),
+                                    ..default()
+                                },
+                                ImageNode {
+                                    image: asset_server.load("SettingsMenu/SliderThumb.png"),
+
+                                    ..default()
+                                },
+                            )
+                        ]
+                    ),
+                ]
+            ),
+            //music volume
+            (
+                ZIndex(101),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(10.0),
+                    height: Val::Percent(3.0),
+                    top: Val::Percent(48.0),
+                    left: Val::Percent(30.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                //BackgroundColor(Color::srgb(1.0, 1.0, 1.0)),
+                //for testing purposes
+                children![
+                    (   
+                        types::SettingsTextNode,
+                        types::AudioSettingsComponent::Music,
+                        Text::new("Music Volume: ".to_owned() + &(audio_settings.music_volume).to_string() + "%"),
+                        TextFont {
+                            font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                            font_size: bevy::prelude::FontSize::Px(15.0),
+                            ..default()
+                        },
+                    ),
+                ]
+
             ),
 
             (
-                //settings header
-            ),
+                ZIndex(101),
+                types::AudioSettingsComponent::Music,
+                SliderValue(audio_settings.music_volume),
+                SliderPrecision(2),
+                SliderRange::new(SLIDER_MIN, SLIDER_MAX),
+                Slider {
+                    track_click: Snap,
+                    orientation: Horizontal,
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    top: Val::Percent(51.0),
+                    left: Val::Percent(25.0),
+                    height: Val::Percent(2.0),
+                    width: Val::Percent(20.0),
+                    overflow: Overflow {x: OverflowAxis::Visible, y: OverflowAxis::Visible},
+                    ..default()
+                },
+                ImageNode {
+                    image: asset_server.load("SettingsMenu/Slider.png"),
+                    image_mode: NodeImageMode::Stretch,
+                    ..default()
+                },
+                observe(slider_self_update),
 
-            (
-                //save game
-            ),
+                children![
+                    (
+                       Node {
+                        position_type: PositionType::Absolute,
+                        height: Val::Percent(100.0),
+                        width: Val::Percent(100.0),
+                        ..default()
+                       },
 
-            (
-                //load save (second button, but its just simpler)
-            ),
+                        children![
+                            (
+                                SliderThumb,
+                                ZIndex(103),
+                                Anchor::CENTER,
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    width: Val::Percent(10.0),
+                                    ..default()
+                                },
+                                ImageNode {
+                                    image: asset_server.load("SettingsMenu/SliderThumb.png"),
 
-            (
-                //hard reset, (add confirmation)
+                                    ..default()
+                                },
+                            )
+                        ]
+                    ),
+                ]
             ),
         ],
     ));

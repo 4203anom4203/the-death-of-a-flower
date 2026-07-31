@@ -214,21 +214,22 @@ pub fn update_volume (
             }
         }
 }
+
 //updates internal variables or somth
 pub fn update_volume_numbers (
     mut number: Query<(&mut Text, &types::AudioSettingsComponent), With<types::SettingsTextNode>>,
     audio: Res<types::AudioSettings>,
 ) {
     for (mut text, binding) in &mut number {
-        match binding {
+        match *binding {
             types::AudioSettingsComponent::Voice => {
-                text.0 = format!("Voice Volume: {}%", audio.voice_volume);
+                text.0 = format!("Voice Volume: {}%", audio.voice_volume.round());
             }
             types::AudioSettingsComponent::Sfx => {
-
+                text.0 = format!("Sfx Volume: {}%", audio.sfx_volume.round());
             }
             types::AudioSettingsComponent::Music => {
-
+                text.0 = format!("Voice Volume: {}%", audio.music_volume.round());
             }
             
         }
