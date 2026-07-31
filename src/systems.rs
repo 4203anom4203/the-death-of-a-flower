@@ -1,4 +1,4 @@
-use bevy::{ecs::relationship::Relationship, prelude::*, ui_widgets::{SliderRange, SliderThumb, SliderValue}};
+use bevy::{ecs::relationship::Relationship, prelude::*, ui_widgets::{SliderThumb, SliderValue}};
 use crate::{types, setup};
 pub fn start_button_system (
     mut state: ResMut<types::GameState>,
@@ -120,9 +120,10 @@ pub fn settings_button_system (
                 //*border_color = BorderColor::all(GREEN);
                 state.current_menu = match state.current_menu {
                 types::Menu::None => types::Menu::Settings,
-                types::Menu::Settings => types::Menu::None, //settings overlay toggle
+                types::Menu::Settings => types::Menu::Settings, //settings overlay toggle
                 types::Menu::Credits => types::Menu::Credits, //disable settings button inside of credits menu
                 };
+                
             }
 
             Interaction::Hovered => {
@@ -180,13 +181,13 @@ pub fn button_dissapear (
 pub fn update_sliders (
     thumb: Query<(&mut Node, &ChildOf), With<SliderThumb>>,
     track: Query<&ChildOf, Without<SliderThumb>>,
-    slider: Query<(&SliderValue, &SliderRange), Changed<SliderValue>>,
+    slider: Query<&SliderValue , Changed<SliderValue>>,
 ) {
     for (mut thumb_node, thumb_parent) in thumb {
-        if let Ok(track_parent) = track.get(thumb_parent.get()) {
-            if let Ok((slider_value, _slider_range)) = slider.get(track_parent.get()) {
+        if let Ok(track_parent) = track.get(thumb_parent.get()) { //from my understanding, this checks if getting the thumb parent is a success, then sets the track parent to that value then it checks if it went through
+            if let Ok(slider_value) = slider.get(track_parent.get()) { //depends on the query, this shit is hard
                 let value = (slider_value.0 - setup::SLIDER_MIN) / (setup::SLIDER_MAX - setup::SLIDER_MIN);
-                let percent = value.clamp(0.0, 1.0) * 100.0 - 3.0;
+                let percent = value.clamp(setup::SLIDER_MIN, setup::SLIDER_MAX) * 100.0;
                 thumb_node.left = Val::Percent(percent);
             }
         }
@@ -201,15 +202,35 @@ pub fn update_volume (
         for (slider_value, binding) in &slider {
             match binding {
                 types::AudioSettingsComponent::Voice => {
-                    audio.voice_volume = slider_value.0;
+                    audio.voice_volume = (slider_value.0 - setup::SLIDER_MIN) / (setup::SLIDER_MAX - setup::SLIDER_MIN) * 100.0;
                 }
                 types::AudioSettingsComponent::Sfx => {
-                    audio.sfx_volume = slider_value.0;
+                    audio.sfx_volume = (slider_value.0 - setup::SLIDER_MIN) / (setup::SLIDER_MAX - setup::SLIDER_MIN) * 100.0;
                 }
                 types::AudioSettingsComponent::Music => {
-                    audio.music_volume = slider_value.0;
+                    audio.music_volume = (slider_value.0 - setup::SLIDER_MIN) / (setup::SLIDER_MAX - setup::SLIDER_MIN) * 100.0;
                 }
 
             }
         }
+}
+//updates internal variables or somth
+pub fn update_volume_numbers (
+    mut number: Query<(&mut Text, &types::AudioSettingsComponent), With<types::SettingsTextNode>>,
+    audio: Res<types::AudioSettings>,
+) {
+    for (mut text, binding) in &mut number {
+        match binding {
+            types::AudioSettingsComponent::Voice => {
+                text.0 = format!("Voice Volume: {}%", audio.voice_volume);
+            }
+            types::AudioSettingsComponent::Sfx => {
+
+            }
+            types::AudioSettingsComponent::Music => {
+
+            }
+            
+        }
+    }
 }

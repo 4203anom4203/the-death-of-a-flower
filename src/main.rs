@@ -28,6 +28,7 @@ fn main() -> AppExit {
         .add_systems(Update, systems::update_credits_menu)
         .add_systems(Update, systems::update_sliders)
         .add_systems(Update, systems::update_volume)
+        .add_systems(Update, systems::update_volume_numbers)
         .run()
 }
 

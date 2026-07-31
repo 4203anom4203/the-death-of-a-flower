@@ -8,7 +8,7 @@ use crate::types::{self, AudioSettings};
 
 pub const PURPLE: Color = Color::srgba(0.749, 0.0, 1.0, 1.0);
 pub const SLIDER_MIN: f32 = 0.0;
-pub const SLIDER_MAX: f32 = 1.0;
+pub const SLIDER_MAX: f32 = 0.95;
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -16,8 +16,6 @@ pub fn setup(
     audio_settings: Res<AudioSettings>,
 ) {
     //higher render layer = on top :)
-    //TODO: Make the background go blank with the thingy
-    /////// if statement on the titlescreenswap.
     //TODO: settings buttons in menup
     //TODO: SAVE FILES
 
@@ -179,20 +177,48 @@ pub fn setup(
             ),
 
             (
-                //voice volume
                 ZIndex(101),
-                Node {
-                    position_type: PositionType::Absolute,
+                Node{
                     width: Val::Percent(20.0),
-                    height: Val::Percent(10.0),
-                    top: Val::Percent(20.0),
-                    left: Val::Percent(10.0),
+                    height: Val::Percent(20.0),
+                    top: Val::Percent(15.0),
+                    position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
+                //BackgroundColor(PURPLE),
                 children![
                     (
+                        Text::new("Settings"),
+                        TextFont {
+                            font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
+                            font_size: bevy::prelude::FontSize::Px(50.0),
+                            ..default()
+                        },
+                    ),
+                ]
+            ),
+
+            (
+                //voice volume
+                ZIndex(101),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Percent(10.0),
+                    height: Val::Percent(3.0),
+                    top: Val::Percent(32.0),
+                    left: Val::Percent(30.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                //BackgroundColor(Color::srgb(1.0, 1.0, 1.0)),
+                //for testing purposes
+                children![
+                    (   
+                        types::SettingsTextNode,
+                        types::AudioSettingsComponent::Voice,
                         Text::new("Voice Volume: ".to_owned() + &(audio_settings.voice_volume*100.0).to_string() + "%"),
                         TextFont {
                             font: bevy::prelude::FontSource::Handle(asset_server.load("fonts/NotoSans.ttf")),
@@ -218,6 +244,8 @@ pub fn setup(
                     position_type: PositionType::Absolute,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    top: Val::Percent(35.0),
+                    left: Val::Percent(25.0),
                     height: Val::Percent(2.0),
                     width: Val::Percent(20.0),
                     overflow: Overflow {x: OverflowAxis::Visible, y: OverflowAxis::Visible},

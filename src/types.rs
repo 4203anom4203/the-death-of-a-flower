@@ -82,4 +82,7 @@ pub struct WorldCamera;
 
 #[derive(Component)]
 pub struct TitleBackgroundImage;
+
+#[derive(Component)]
+pub struct SettingsTextNode;
 //my linter blew up because of unused code
