@@ -1,0 +1,36 @@
+Blank = "" #for advancing picture frames etc.
+[D.MONDAY] #Dr. Nya
+1 = "Dr. Nya: {Mc}..."
+2 = "Dr. Nya: {Mc}. . "
+3 = "Dr. Nya: {Mc}!!"
+4 = "Dr. Nya: Are you listening?"
+5 = "Dr. Nya: *sigh* We need to talk about this when your \"other\" comes out. What do you feel?"
+6 = "Dr. Nya: And you don\u2019t remember anything? Nothing at all?"
+7 = "Dr. Nya: You haven\u2019t had flashes or anything, no split-second recollections of what happens?"
+[M.MONDAY] #Main character
+1 = "{Mc}: Hm? Oh- yeah."
+2 = "{Mc}: I don\u2019t feel… anything… One moment I\u2019m doing something by myself… the next I'm lying on the floor of my house, with blood or bruises all over my body. Sometimes there\u2019s a knife. And I\u2019m out of breath."
+3 = "{Mc}: No"
+#split recollection picture
+
+[E.MONDAY] #Lover
+
+[A.MONDAY] #Zayla
+
+[I.MONDAY] #Inari
+
+[Y.MONDAY] #Yalina
+
+[AA.MONDAY] #Ameena
+
+[T.MONDAY]
+#thoughts/idk bro they put that there
+1 = "[Surrounded by a room too small with windows too huge. Fake plants on the walls. As well as the iconic, overused two sofas across from one another.]"
+2 = "[Yellow light bulbs burn your eyes, yet fail to illuminate the rest of the room. Each light glaring deep into your soul as the pressure suffocates you alive.]"
+3 = "[Twice a week, you\u2019re dragged into these hellish evening meetings. You stare out the too-large window as she talks, mind long gone as it flows farther away from your true body.]"
+#seperate sub-tables for each character
+#make sure that we use "serde" for runtime lookup
+#use Oncelock aswell to avoid bad memory issues
+# x.replace(thing to replace, replace with thing);
+# like this
+# x.replace("{potato}, "carrot");
